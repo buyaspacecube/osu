@@ -8,7 +8,7 @@ namespace osu.Game.Screens
 {
     public static class SeasonalUI
     {
-        public static readonly bool ENABLED = true;
+        public static readonly bool ENABLED = false;
 
         public static readonly Color4 PRIMARY_COLOUR_1 = Color4Extensions.FromHex("D32F2F");
 
