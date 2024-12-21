@@ -324,6 +324,7 @@ namespace osu.Game
 
             if (host.Window != null)
             {
+                host.Window.CursorState |= CursorState.Hidden;
                 host.Window.DragDrop += path =>
                 {
                     // on macOS/iOS, URL associations are handled via SDL_DROPFILE events.
