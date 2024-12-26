@@ -33,6 +33,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         {
             double effectiveBPM = noteObject.EffectiveBPM;
 
+			// To-do: make something more complicated than this that accounts for low sv, overlapping notes and hidden
             var highVelocity = new VelocityRange(480, 640);
             var midVelocity = new VelocityRange(360, 480);
 

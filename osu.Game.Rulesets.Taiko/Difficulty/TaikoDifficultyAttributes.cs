@@ -33,6 +33,12 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         /// </summary>
         [JsonProperty("reading_difficulty")]
         public double ReadingDifficulty { get; set; }
+		
+		/// <summary>
+		/// The difficulty corresponding to the memory skill.
+		/// </summary>
+		[JsonProperty("memory_difficulty")]
+		public double MemoryDifficulty { get; set; }
 
         /// <summary>
         /// The difficulty corresponding to the colour skill.
