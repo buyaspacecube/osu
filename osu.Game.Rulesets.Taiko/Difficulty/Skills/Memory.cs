@@ -7,6 +7,7 @@ using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Taiko.Difficulty.Evaluators;
 using osu.Game.Rulesets.Taiko.Difficulty.Preprocessing;
 using osu.Game.Rulesets.Taiko.Objects;
+using osu.Game.Rulesets.Difficulty.Utils;
 
 namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 {
@@ -17,7 +18,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
     public class Memory : StrainDecaySkill
     {
         protected override double SkillMultiplier => 1.0;
-        protected override double StrainDecayBase => 0.9; // Very slow decay as generally memorising more notes is harder
+        protected override double StrainDecayBase => 0.88; // Slow decay as generally memorising more notes is harder
 
         private double currentStrain;
 
@@ -36,16 +37,15 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 
             var taikoObject = (TaikoDifficultyHitObject)current;
 			var readingDifficulty = ReadingEvaluator.EvaluateDifficultyOf(taikoObject);
-
-            currentStrain *= StrainDecayBase;
+			var colourDifficulty = ColourEvaluator.EvaluateDifficultyOf(taikoObject);      
 			
-			// Only notes considered hard to read are viable for memorisation
-			if (readingDifficulty > 1.3)
-			{
-				// This will probably need a MemoryEvaluator in the future but I'll see how this looks for now
-				var colourDifficulty = ColourEvaluator.EvaluateDifficultyOf(taikoObject);
-				currentStrain += (colourDifficulty * 0.2) * SkillMultiplier;
-			}
+			// Notes below this threshold are not worth memorising so give 0 memory difficulty
+			// Notes with the highest reading difficulty (1.5) need to be memorised so give 1 memory difficulty
+			var hardToReadThreshold = 0.75;
+			var memoryDifficulty = DifficultyCalculationUtils.Logistic(readingDifficulty, (hardToReadThreshold + 1.5) / 2, 12);
+			
+			currentStrain *= StrainDecayBase;
+			currentStrain += memoryDifficulty * (colourDifficulty * 0.15) * SkillMultiplier;
 
             return currentStrain;
         }
