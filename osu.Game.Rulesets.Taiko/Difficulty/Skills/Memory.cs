@@ -15,7 +15,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
     /// <summary>
     /// Calculates the memory coefficient of taiko difficulty.
     /// </summary>
-	/// All values are likely subject to change as I don't quite know what I'm doing yet
     public class Memory : StrainDecaySkill
     {
         protected override double SkillMultiplier => 1.0;
@@ -23,7 +22,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 
         private double currentStrain;
 		
-		private double consecutiveHardToReadBonus; // wtf
+		private double consecutiveHardToReadBonus;
 
         public Memory(Mod[] mods)
             : base(mods)
@@ -48,13 +47,17 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 			var memoryDifficulty = DifficultyCalculationUtils.Logistic(readingDifficulty, (hardToReadThreshold + 1.5) / 2, 12);
 
 			currentStrain *= StrainDecayBase;
-			currentStrain += memoryDifficulty * (colourDifficulty * 0.3) * consecutiveHardToReadBonus * SkillMultiplier;
+			currentStrain += memoryDifficulty * (colourDifficulty * 0.2) * consecutiveHardToReadBonus * SkillMultiplier;
 
 			// Small bonus to consecutive hard to read notes
 			// Aims to buff memorising longer sections
-			if (readingDifficulty >= hardToReadThreshold && consecutiveHardToReadBonus <= 1.25)
+			if (readingDifficulty >= hardToReadThreshold)
 			{
-				consecutiveHardToReadBonus += 0.01;
+				consecutiveHardToReadBonus = Math.Min(2, consecutiveHardToReadBonus + 0.02);
+			}
+			else
+			{
+				consecutiveHardToReadBonus = Math.Max(1.0, consecutiveHardToReadBonus - 0.02);
 			}
 
             return currentStrain;
