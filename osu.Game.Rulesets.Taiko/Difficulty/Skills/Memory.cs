@@ -22,7 +22,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 
         private double currentStrain;
 		
-		private double consecutiveHardToReadBonus;
+		private double totalMemoryDiffAdded;
 
         public Memory(Mod[] mods)
             : base(mods)
@@ -42,24 +42,20 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 			var colourDifficulty = ColourEvaluator.EvaluateDifficultyOf(taikoObject);      
 			
 			// Notes below this threshold are not worth memorising so give 0 memory difficulty
-			// Notes give more memory difficulty up to 1 as they approach maximum reading difficulty
+			// Notes give more memory difficulty up to 0.5 as they approach maximum reading difficulty
 			var hardToReadThreshold = 0.75;
-			var memoryDifficulty = DifficultyCalculationUtils.Logistic(readingDifficulty, (hardToReadThreshold + 1.5) / 2, 12);
+			var memoryDifficulty = 0.5 * DifficultyCalculationUtils.Logistic(readingDifficulty, (hardToReadThreshold + 1.5) / 2, 12);
+			
+			// Multiplier based on total memory difficulty already added, starts at *0.5 and caps at *5 for now
+			// Buffs memorising more stuff
+			// https://www.desmos.com/calculator/tcih3q6fk1
+			memoryDifficulty *= Math.Min(5, Math.Pow(totalMemoryDiffAdded / 50, 0.75) + 0.5);
+			
+			totalMemoryDiffAdded += memoryDifficulty;
 
 			currentStrain *= StrainDecayBase;
-			currentStrain += memoryDifficulty * (colourDifficulty * 0.2) * consecutiveHardToReadBonus * SkillMultiplier;
-
-			// Small bonus to consecutive hard to read notes
-			// Aims to buff memorising longer sections
-			if (readingDifficulty >= hardToReadThreshold)
-			{
-				consecutiveHardToReadBonus = Math.Min(2, consecutiveHardToReadBonus + 0.02);
-			}
-			else
-			{
-				consecutiveHardToReadBonus = Math.Max(1.0, consecutiveHardToReadBonus - 0.02);
-			}
-
+			currentStrain += memoryDifficulty * (colourDifficulty * 0.5) * SkillMultiplier;
+			
             return currentStrain;
         }
     }
