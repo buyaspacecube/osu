@@ -4,6 +4,10 @@
 using NUnit.Framework;
 using osu.Framework.Graphics;
 using osu.Game.Screens.Menu;
+<<<<<<< HEAD
+=======
+using osu.Game.Seasonal;
+>>>>>>> 7746867feb097672bc817ff02c74ffe6787a0d36
 using osuTK;
 
 namespace osu.Game.Tests.Visual.UserInterface
@@ -12,6 +16,22 @@ namespace osu.Game.Tests.Visual.UserInterface
     {
         private OsuLogo? logo;
 
+<<<<<<< HEAD
+=======
+        private float scale = 1;
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            AddSliderStep("scale", 0.1, 2, 1, scale =>
+            {
+                if (logo != null)
+                    Child.Scale = new Vector2(this.scale = (float)scale);
+            });
+        }
+
+>>>>>>> 7746867feb097672bc817ff02c74ffe6787a0d36
         [Test]
         public void TestBasic()
         {
@@ -21,6 +41,21 @@ namespace osu.Game.Tests.Visual.UserInterface
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
+                    Scale = new Vector2(scale),
+                };
+            });
+        }
+
+        [Test]
+        public void TestChristmas()
+        {
+            AddStep("Add logo", () =>
+            {
+                Child = logo = new OsuLogoChristmas
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Scale = new Vector2(scale),
                 };
             });
 

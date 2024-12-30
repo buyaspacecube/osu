@@ -46,8 +46,37 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         [JsonProperty("mono_stamina_factor")]
         public double MonoStaminaFactor { get; set; }
 
+<<<<<<< HEAD
         [JsonProperty("reading_difficult_strains")]
         public double ReadingTopStrains { get; set; }
+=======
+        /// <summary>
+        /// The difficulty corresponding to the rhythm skill.
+        /// </summary>
+        [JsonProperty("rhythm_difficulty")]
+        public double RhythmDifficulty { get; set; }
+
+        /// <summary>
+        /// The difficulty corresponding to the reading skill.
+        /// </summary>
+        [JsonProperty("reading_difficulty")]
+        public double ReadingDifficulty { get; set; }
+		
+		/// <summary>
+		/// The difficulty corresponding to the memory skill.
+		/// </summary>
+		[JsonProperty("memory_difficulty")]
+		public double MemoryDifficulty { get; set; }
+
+        /// <summary>
+        /// The difficulty corresponding to the colour skill.
+        /// </summary>
+        [JsonProperty("colour_difficulty")]
+        public double ColourDifficulty { get; set; }
+
+        [JsonProperty("rhythm_difficult_strains")]
+        public double RhythmTopStrains { get; set; }
+>>>>>>> 7746867feb097672bc817ff02c74ffe6787a0d36
 
         [JsonProperty("colour_difficult_strains")]
         public double ColourTopStrains { get; set; }

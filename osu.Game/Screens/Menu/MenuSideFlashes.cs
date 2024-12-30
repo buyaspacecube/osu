@@ -25,6 +25,10 @@ namespace osu.Game.Screens.Menu
 {
     public partial class MenuSideFlashes : BeatSyncedContainer
     {
+        protected virtual bool RefreshColoursEveryFlash => false;
+
+        protected virtual float Intensity => 2;
+
         private readonly IBindable<WorkingBeatmap> beatmap = new Bindable<WorkingBeatmap>();
 
         private Box leftBox;
@@ -68,7 +72,11 @@ namespace osu.Game.Screens.Menu
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
                     RelativeSizeAxes = Axes.Y,
+<<<<<<< HEAD
                     Width = box_width * (SeasonalUI.ENABLED ? 4 : 2),
+=======
+                    Width = box_width * Intensity,
+>>>>>>> 7746867feb097672bc817ff02c74ffe6787a0d36
                     Height = 1.5f,
                     // align off-screen to make sure our edges don't become visible during parallax.
                     X = -box_width,
@@ -80,7 +88,11 @@ namespace osu.Game.Screens.Menu
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
                     RelativeSizeAxes = Axes.Y,
+<<<<<<< HEAD
                     Width = box_width * (SeasonalUI.ENABLED ? 4 : 2),
+=======
+                    Width = box_width * Intensity,
+>>>>>>> 7746867feb097672bc817ff02c74ffe6787a0d36
                     Height = 1.5f,
                     X = box_width,
                     Alpha = 0,
@@ -88,8 +100,11 @@ namespace osu.Game.Screens.Menu
                 }
             };
 
-            user.ValueChanged += _ => updateColour();
-            skin.BindValueChanged(_ => updateColour(), true);
+            if (!RefreshColoursEveryFlash)
+            {
+                user.ValueChanged += _ => updateColour();
+                skin.BindValueChanged(_ => updateColour(), true);
+            }
         }
 
         protected override void OnNewBeat(int beatIndex, TimingControlPoint timingPoint, EffectControlPoint effectPoint, ChannelAmplitudes amplitudes)
@@ -105,7 +120,11 @@ namespace osu.Game.Screens.Menu
 
         private void flash(Drawable d, double beatLength, bool kiai, ChannelAmplitudes amplitudes)
         {
+<<<<<<< HEAD
             if (SeasonalUI.ENABLED)
+=======
+            if (RefreshColoursEveryFlash)
+>>>>>>> 7746867feb097672bc817ff02c74ffe6787a0d36
                 updateColour();
 
             d.FadeTo(Math.Clamp(0.1f + ((ReferenceEquals(d, leftBox) ? amplitudes.LeftChannel : amplitudes.RightChannel) - amplitude_dead_zone) / (kiai ? kiai_multiplier : alpha_multiplier), 0.1f, 1),
@@ -114,7 +133,7 @@ namespace osu.Game.Screens.Menu
              .FadeOut(beatLength, Easing.In);
         }
 
-        private void updateColour()
+        protected virtual Color4 GetBaseColour()
         {
             Color4 baseColour = colours.Blue;
 
@@ -123,6 +142,12 @@ namespace osu.Game.Screens.Menu
             else if (user.Value?.IsSupporter ?? false)
                 baseColour = skin.Value.GetConfig<GlobalSkinColours, Color4>(GlobalSkinColours.MenuGlow)?.Value ?? baseColour;
 
+            return baseColour;
+        }
+
+        private void updateColour()
+        {
+            var baseColour = GetBaseColour();
             // linear colour looks better in this case, so let's use it for now.
             Color4 gradientDark = baseColour.Opacity(0).ToLinear();
             Color4 gradientLight = baseColour.Opacity(0.6f).ToLinear();

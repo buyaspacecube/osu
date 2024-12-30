@@ -54,8 +54,12 @@ namespace osu.Game.Screens.Menu
         private Sample sampleClick;
         private SampleChannel sampleClickChannel;
 
-        private Sample sampleBeat;
-        private Sample sampleDownbeat;
+        protected virtual MenuLogoVisualisation CreateMenuLogoVisualisation() => new MenuLogoVisualisation();
+
+        protected virtual double BeatSampleVariance => 0.1;
+
+        protected Sample SampleBeat;
+        protected Sample SampleDownbeat;
 
         private readonly Container colourAndTriangles;
         private readonly TrianglesV2 triangles;
@@ -152,15 +156,15 @@ namespace osu.Game.Screens.Menu
                                             AutoSizeAxes = Axes.Both,
                                             Children = new Drawable[]
                                             {
-                                                visualizer = new MenuLogoVisualisation
+                                                visualizer = CreateMenuLogoVisualisation().With(v =>
                                                 {
-                                                    RelativeSizeAxes = Axes.Both,
-                                                    Origin = Anchor.Centre,
-                                                    Anchor = Anchor.Centre,
-                                                    Alpha = visualizer_default_alpha,
-                                                    Size = SCALE_ADJUST
-                                                },
-                                                new Container
+                                                    v.RelativeSizeAxes = Axes.Both;
+                                                    v.Origin = Anchor.Centre;
+                                                    v.Anchor = Anchor.Centre;
+                                                    v.Alpha = visualizer_default_alpha;
+                                                    v.Size = SCALE_ADJUST;
+                                                }),
+                                                LogoElements = new Container
                                                 {
                                                     AutoSizeAxes = Axes.Both,
                                                     Children = new Drawable[]
@@ -253,6 +257,8 @@ namespace osu.Game.Screens.Menu
             };
         }
 
+        public Container LogoElements { get; private set; }
+
         /// <summary>
         /// Schedule a new external animation. Handled queueing and finishing previous animations in a sane way.
         /// </summary>
@@ -282,6 +288,7 @@ namespace osu.Game.Screens.Menu
         {
             sampleClick = audio.Samples.Get(@"Menu/osu-logo-select");
 
+<<<<<<< HEAD
             if (SeasonalUI.ENABLED)
             {
                 sampleDownbeat = sampleBeat = audio.Samples.Get(@"Menu/osu-logo-heartbeat-bell");
@@ -291,6 +298,10 @@ namespace osu.Game.Screens.Menu
                 sampleBeat = audio.Samples.Get(@"Menu/osu-logo-heartbeat");
                 sampleDownbeat = audio.Samples.Get(@"Menu/osu-logo-downbeat");
             }
+=======
+            SampleBeat = audio.Samples.Get(@"Menu/osu-logo-heartbeat");
+            SampleDownbeat = audio.Samples.Get(@"Menu/osu-logo-downbeat");
+>>>>>>> 7746867feb097672bc817ff02c74ffe6787a0d36
 
             logo.Texture = textures.Get(@"Menu/logo");
             ripple.Texture = textures.Get(@"Menu/logo");
@@ -318,15 +329,21 @@ namespace osu.Game.Screens.Menu
                 {
                     if (beatIndex % timingPoint.TimeSignature.Numerator == 0)
                     {
-                        sampleDownbeat?.Play();
+                        SampleDownbeat?.Play();
                     }
                     else
                     {
+<<<<<<< HEAD
                         var channel = sampleBeat.GetChannel();
                         if (SeasonalUI.ENABLED)
                             channel.Frequency.Value = 0.99 + RNG.NextDouble(0.02);
                         else
                             channel.Frequency.Value = 0.95 + RNG.NextDouble(0.1);
+=======
+                        var channel = SampleBeat.GetChannel();
+
+                        channel.Frequency.Value = 1 - BeatSampleVariance / 2 + RNG.NextDouble(BeatSampleVariance);
+>>>>>>> 7746867feb097672bc817ff02c74ffe6787a0d36
                         channel.Play();
                     }
                 });

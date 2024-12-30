@@ -3,6 +3,10 @@
 
 using NUnit.Framework;
 using osu.Game.Screens.Menu;
+<<<<<<< HEAD
+=======
+using osu.Game.Seasonal;
+>>>>>>> 7746867feb097672bc817ff02c74ffe6787a0d36
 
 namespace osu.Game.Tests.Visual.Menus
 {
