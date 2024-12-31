@@ -8,6 +8,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 {
     public static class ReadingEvaluator
     {
+		// can't get mods to work so set this manually for now
+		private static bool hasHDFL => true;
+		
         private readonly struct VelocityRange
         {
             public double Min { get; }
@@ -31,6 +34,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         /// <returns>The reading difficulty value for the given hit object.</returns>
         public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject)
         {
+			if (hasHDFL) {
+				return 1.5;
+			}
+			
             double effectiveBPM = noteObject.EffectiveBPM;
 
             var highVelocity = new VelocityRange(480, 640);
