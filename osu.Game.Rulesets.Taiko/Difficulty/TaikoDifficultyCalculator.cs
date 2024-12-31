@@ -125,6 +125,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 			
 			// Memory difficulty receives a multiplier based on memory difficult strains, starting at *0.5
 			// Buffs memorising more stuff
+			// https://www.desmos.com/calculator/2llfxiqejx
 			double memoryRating = memory.DifficultyValue() * memory_skill_multiplier * (Math.Pow(memoryDifficultStrains / 150.0, 0.75) + 0.5);
 
             double combinedRating = combinedDifficultyValue(rhythm, reading, memory, colour, stamina, isRelax);
