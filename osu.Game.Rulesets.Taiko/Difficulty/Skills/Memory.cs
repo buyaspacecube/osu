@@ -44,8 +44,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 			var rhythmDifficulty = RhythmEvaluator.EvaluateDifficultyOf(taikoObject, greatHitWindow);
 			
 			// How necessary a note is to memorise based on its reading difficulty from 0 to 1
-			var hardToReadThreshold = 0.75;
-			var howNecessaryToMemorise = DifficultyCalculationUtils.Logistic(readingDifficulty, (hardToReadThreshold + 1.5) / 2, 12);
+			var howNecessaryToMemorise = DifficultyCalculationUtils.Logistic(readingDifficulty, (0.75 + 1.15) / 2, 12);
 			
 			// How difficult a note is to memorise
 			// Colour currently uses a system where only the first note of a non-repeating pattern gives colour difficulty

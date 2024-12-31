@@ -48,6 +48,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
         [JsonProperty("reading_difficult_strains")]
         public double ReadingTopStrains { get; set; }
+		
+		[JsonProperty("memory_difficult_strains")]
+		public double MemoryTopStrains { get; set; }
 
         [JsonProperty("colour_difficult_strains")]
         public double ColourTopStrains { get; set; }

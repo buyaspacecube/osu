@@ -113,7 +113,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
             double rhythmRating = rhythm.DifficultyValue() * rhythm_skill_multiplier;
             double readingRating = reading.DifficultyValue() * reading_skill_multiplier;
-			double memoryRating = memory.DifficultyValue() * memory_skill_multiplier;
             double colourRating = colour.DifficultyValue() * colour_skill_multiplier;
             double staminaRating = stamina.DifficultyValue() * stamina_skill_multiplier;
             double monoStaminaRating = singleColourStamina.DifficultyValue() * stamina_skill_multiplier;
@@ -121,7 +120,12 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
             double colourDifficultStrains = colour.CountTopWeightedStrains();
             double readingDifficultStrains = reading.CountTopWeightedStrains();
+			double memoryDifficultStrains = memory.CountTopWeightedStrains();
             double staminaDifficultStrains = stamina.CountTopWeightedStrains();
+			
+			// Memory difficulty receives a multiplier based on memory difficult strains, starting at *0.5
+			// Buffs memorising more stuff
+			double memoryRating = memory.DifficultyValue() * memory_skill_multiplier * (Math.Pow(memoryDifficultStrains / 150.0, 0.75) + 0.5);
 
             double combinedRating = combinedDifficultyValue(rhythm, reading, memory, colour, stamina, isRelax);
             double starRating = rescale(combinedRating * 1.4);
@@ -150,6 +154,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 StaminaDifficulty = staminaRating,
                 MonoStaminaFactor = monoStaminaFactor,
                 ReadingTopStrains = readingDifficultStrains,
+				MemoryTopStrains = memoryDifficultStrains,
                 ColourTopStrains = colourDifficultStrains,
                 StaminaTopStrains = staminaDifficultStrains,
                 GreatHitWindow = hitWindows.WindowFor(HitResult.Great) / clockRate,
@@ -224,7 +229,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 weight *= 0.9;
             }
 
-            return Math.Min(difficulty_w_reading, difficulty_w_memory);
+            return Math.Max(difficulty_w_reading, difficulty_w_memory);
         }
 
         /// <summary>
