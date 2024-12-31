@@ -59,6 +59,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             new TaikoModHalfTime(),
             new TaikoModEasy(),
             new TaikoModHardRock(),
+			new TaikoModHidden(),
+			new TaikoModFlashlight()
         };
 
         protected override IEnumerable<DifficultyHitObject> CreateDifficultyHitObjects(IBeatmap beatmap, double clockRate)
@@ -230,7 +232,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 weight *= 0.9;
             }
 
-            return Math.Max(difficulty_w_reading, difficulty_w_memory);
+            return Math.Min(difficulty_w_reading, difficulty_w_memory);
         }
 
         /// <summary>
