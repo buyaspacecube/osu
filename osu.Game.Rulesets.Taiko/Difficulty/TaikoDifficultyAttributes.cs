@@ -23,10 +23,16 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         public double ReadingDifficulty { get; set; }
 		
 		/// <summary>
-        /// The difficulty corresponding to the memory skill.
+        /// The difficulty corresponding to the memory skill before being multiplied.
         /// </summary>
-        [JsonProperty("memory_difficulty")]
-        public double MemoryDifficulty { get; set; }
+        [JsonProperty("raw_memory_difficulty")]
+        public double RawMemoryDifficulty { get; set; }
+		
+		/// <summary>
+		/// The multiplier applied to memory difficulty and strains based on number of difficult strains.
+		/// </summary>
+		[JsonProperty("memory_multiplier")]
+		public double MemoryMultiplier { get; set; }
 
         /// <summary>
         /// The difficulty corresponding to the colour skill.

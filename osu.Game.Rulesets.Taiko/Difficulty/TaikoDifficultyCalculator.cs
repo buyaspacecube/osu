@@ -116,6 +116,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
             double rhythmRating = rhythm.DifficultyValue() * rhythm_skill_multiplier;
             double readingRating = reading.DifficultyValue() * reading_skill_multiplier;
+			double memoryRating = memory.DifficultyValue() * memory_skill_multiplier;
             double colourRating = colour.DifficultyValue() * colour_skill_multiplier;
             double staminaRating = stamina.DifficultyValue() * stamina_skill_multiplier;
             double monoStaminaRating = singleColourStamina.DifficultyValue() * stamina_skill_multiplier;
@@ -128,10 +129,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 			
 			// Memory difficulty receives a multiplier based on memory difficult strains, starting at *0.5
 			// Buffs memorising more stuff
-			// https://www.desmos.com/calculator/2llfxiqejx
-			double memoryRating = memory.DifficultyValue() * memory_skill_multiplier * (Math.Pow(memoryDifficultStrains / 75.0, 0.75) + 0.5);
+			// https://www.desmos.com/calculator/yxi8jwod4b
+			double memoryMultiplier = Math.Pow(memoryDifficultStrains / 75.0, 0.75) + 0.5;
 			
-            double combinedRating = combinedDifficultyValue(rhythm, reading, memory, colour, stamina, isRelax, isHDFL);
+            double combinedRating = combinedDifficultyValue(rhythm, reading, memory, colour, stamina, isRelax, isHDFL, memoryMultiplier);
             double starRating = rescale(combinedRating * 1.4);
 
             // Converts are penalised outside the scope of difficulty calculation, as our assumptions surrounding standard play-styles becomes out-of-scope.
@@ -153,7 +154,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 Mods = mods,
                 RhythmDifficulty = rhythmRating,
                 ReadingDifficulty = readingRating,
-				MemoryDifficulty = memoryRating,
+				RawMemoryDifficulty = memoryRating,
+				MemoryMultiplier = memoryMultiplier,
                 ColourDifficulty = colourRating,
                 StaminaDifficulty = staminaRating,
                 MonoStaminaFactor = monoStaminaFactor,
@@ -176,7 +178,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         /// For each section, the peak strains of all separate skills are combined into a single peak strain for the section.
         /// The resulting partial rating of the beatmap is a weighted sum of the combined peaks (higher peaks are weighted more).
         /// </remarks>
-        private double combinedDifficultyValue(Rhythm rhythm, Reading reading, Memory memory, Colour colour, Stamina stamina, bool isRelax, bool isHDFL)
+        private double combinedDifficultyValue(Rhythm rhythm, Reading reading, Memory memory, Colour colour, Stamina stamina, bool isRelax, bool isHDFL, double memoryMultiplier)
         {
 			// Peaks are tracked separately using reading and memory
 			// The easier of the two is returned as the difficulty at the end
@@ -193,7 +195,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             {
                 double rhythmPeak = rhythmPeaks[i] * rhythm_skill_multiplier;
                 double readingPeak = readingPeaks[i] * reading_skill_multiplier;
-				double memoryPeak = memoryPeaks[i] * memory_skill_multiplier;
+				double memoryPeak = memoryPeaks[i] * memoryMultiplier * memory_skill_multiplier; // memoryMultiplier should probably be called something else
                 double colourPeak = colourPeaks[i] * colour_skill_multiplier;
                 double staminaPeak = staminaPeaks[i] * stamina_skill_multiplier;
 
