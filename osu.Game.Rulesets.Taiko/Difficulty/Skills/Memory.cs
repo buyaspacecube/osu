@@ -1,7 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
+using System.Linq;
 using osu.Game.Rulesets.Difficulty.Preprocessing;
 using osu.Game.Rulesets.Difficulty.Skills;
 using osu.Game.Rulesets.Mods;
@@ -9,6 +9,7 @@ using osu.Game.Rulesets.Taiko.Difficulty.Evaluators;
 using osu.Game.Rulesets.Taiko.Difficulty.Preprocessing;
 using osu.Game.Rulesets.Taiko.Objects;
 using osu.Game.Rulesets.Difficulty.Utils;
+using osu.Game.Rulesets.Taiko.Mods;
 
 namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 {
@@ -22,12 +23,15 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 
         private double currentStrain;
 		
-		private double greatHitWindow; // It needs all this to get rhythm difficulty lol
+		private double greatHitWindow; // Used for rhythm difficulty
+		
+		private bool hasHDFL;
 
         public Memory(Mod[] mods, double greatHitWindow)
             : base(mods)
         {
 			this.greatHitWindow = greatHitWindow;
+			hasHDFL = mods.Any(m => m is TaikoModHidden) && mods.Any(m => m is TaikoModFlashlight);
         }
 
         protected override double StrainValueOf(DifficultyHitObject current)
@@ -39,7 +43,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
             }
 
             var taikoObject = (TaikoDifficultyHitObject)current;
-			var readingDifficulty = ReadingEvaluator.EvaluateDifficultyOf(taikoObject);
+			var readingDifficulty = ReadingEvaluator.EvaluateDifficultyOf(taikoObject, hasHDFL);
 			var colourDifficulty = ColourEvaluator.EvaluateDifficultyOf(taikoObject);
 			var rhythmDifficulty = RhythmEvaluator.EvaluateDifficultyOf(taikoObject, greatHitWindow);
 			

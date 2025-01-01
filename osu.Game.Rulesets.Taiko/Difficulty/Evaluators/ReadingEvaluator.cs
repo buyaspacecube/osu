@@ -8,9 +8,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 {
     public static class ReadingEvaluator
     {
-		// can't get mods to work so set this manually for now
-		private static bool hasHDFL => true;
-		
         private readonly struct VelocityRange
         {
             public double Min { get; }
@@ -31,8 +28,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         /// between the upper and lower boundaries to reflect how increased slider velocity impacts difficulty.
         /// </summary>
         /// <param name="noteObject">The hit object to evaluate.</param>
+		/// <param name="hasHDFL">Whether the mods hidden and flashlight are both enabled.</param>
         /// <returns>The reading difficulty value for the given hit object.</returns>
-        public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject)
+        public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject, bool hasHDFL)
         {
 			if (hasHDFL) {
 				return 1.5;

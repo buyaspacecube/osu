@@ -130,6 +130,11 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 			// https://www.desmos.com/calculator/2llfxiqejx
 			double memoryRating = memory.DifficultyValue() * memory_skill_multiplier * (Math.Pow(memoryDifficultStrains / 150.0, 0.75) + 0.5);
 
+			if (mods.Any(m => m is TaikoModHidden) && mods.Any(m => m is TaikoModFlashlight))
+			{
+				readingRating = 999;
+			}
+			
             double combinedRating = combinedDifficultyValue(rhythm, reading, memory, colour, stamina, isRelax);
             double starRating = rescale(combinedRating * 1.4);
 
