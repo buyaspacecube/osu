@@ -105,6 +105,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 return new TaikoDifficultyAttributes { Mods = mods };
 
             bool isRelax = mods.Any(h => h is TaikoModRelax);
+			bool isHDFL = mods.Any(h => h is TaikoModHidden) && mods.Any(h => h is TaikoModFlashlight);
 
             Rhythm rhythm = (Rhythm)skills.First(x => x is Rhythm);
             Reading reading = (Reading)skills.First(x => x is Reading);
@@ -128,14 +129,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 			// Memory difficulty receives a multiplier based on memory difficult strains, starting at *0.5
 			// Buffs memorising more stuff
 			// https://www.desmos.com/calculator/2llfxiqejx
-			double memoryRating = memory.DifficultyValue() * memory_skill_multiplier * (Math.Pow(memoryDifficultStrains / 150.0, 0.75) + 0.5);
-
-			if (mods.Any(m => m is TaikoModHidden) && mods.Any(m => m is TaikoModFlashlight))
-			{
-				readingRating = 999;
-			}
+			double memoryRating = memory.DifficultyValue() * memory_skill_multiplier * (Math.Pow(memoryDifficultStrains / 75.0, 0.75) + 0.5);
 			
-            double combinedRating = combinedDifficultyValue(rhythm, reading, memory, colour, stamina, isRelax);
+            double combinedRating = combinedDifficultyValue(rhythm, reading, memory, colour, stamina, isRelax, isHDFL);
             double starRating = rescale(combinedRating * 1.4);
 
             // Converts are penalised outside the scope of difficulty calculation, as our assumptions surrounding standard play-styles becomes out-of-scope.
@@ -180,7 +176,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         /// For each section, the peak strains of all separate skills are combined into a single peak strain for the section.
         /// The resulting partial rating of the beatmap is a weighted sum of the combined peaks (higher peaks are weighted more).
         /// </remarks>
-        private double combinedDifficultyValue(Rhythm rhythm, Reading reading, Memory memory, Colour colour, Stamina stamina, bool isRelax)
+        private double combinedDifficultyValue(Rhythm rhythm, Reading reading, Memory memory, Colour colour, Stamina stamina, bool isRelax, bool isHDFL)
         {
 			// Peaks are tracked separately using reading and memory
 			// The easier of the two is returned as the difficulty at the end
@@ -237,7 +233,13 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 weight *= 0.9;
             }
 
-            return Math.Min(difficulty_w_reading, difficulty_w_memory);
+			// Return difficulty with memory if memory is easier or HDFL is on
+			if (isHDFL || difficulty_w_memory < difficulty_w_reading) {
+				return difficulty_w_memory;
+			}
+			else {
+				return difficulty_w_reading;
+			}
         }
 
         /// <summary>
