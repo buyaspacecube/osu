@@ -1,5 +1,3 @@
-
-
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
@@ -44,33 +42,39 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         /// </summary>
         /// <param name="hitObject">The current hitObject to consider.</param>
         /// <param name="threshold"> The allowable margin of error for determining whether ratios are consistent.</param>
-        private static double consistentRatioPenalty(TaikoDifficultyHitObject hitObject, double threshold = 0.01)
+        /// <param name="maxObjectsToCheck">The maximum objects to check per count of consistent ratio.</param>
+        private static double consistentRatioPenalty(TaikoDifficultyHitObject hitObject, double threshold = 0.01, int maxObjectsToCheck = 64)
         {
             int consistentRatioCount = 0;
             double totalRatioCount = 0.0;
 
             TaikoDifficultyHitObject current = hitObject;
 
-            while (current.Previous(1) is TaikoDifficultyHitObject previousHitObject)
+            for (int i = 0; i < maxObjectsToCheck; i++)
             {
+                // Break if there is no valid previous object
+                if (current.Index <= 1)
+                    break;
+
+                var previousHitObject = (TaikoDifficultyHitObject)current.Previous(1);
+
                 double currentRatio = current.Rhythm.Ratio;
                 double previousRatio = previousHitObject.Rhythm.Ratio;
-
-                // If there's no valid hit object before the previous one, break the loop.
-                if (previousHitObject.Previous(1) is not TaikoDifficultyHitObject)
-                    break;
 
                 // A consistent interval is defined as the percentage difference between the two rhythmic ratios with the margin of error.
                 if (Math.Abs(1 - currentRatio / previousRatio) <= threshold)
                 {
                     consistentRatioCount++;
                     totalRatioCount += currentRatio;
+                    break;
                 }
 
+                // Move to the previous object
                 current = previousHitObject;
             }
 
-            double ratioPenalty = 1 - totalRatioCount / (consistentRatioCount + 1) * 0.40;
+            // Ensure no division by zero
+            double ratioPenalty = 1 - totalRatioCount / (consistentRatioCount + 1) * 0.80;
 
             return ratioPenalty;
         }
