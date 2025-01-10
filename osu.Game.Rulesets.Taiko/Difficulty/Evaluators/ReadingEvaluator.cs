@@ -34,9 +34,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 			double lowEndMultiplier = (1.0 - 0.7 * veryHighDensityBonus) / 20.0;
 			double lowEndDifficulty = DifficultyCalculationUtils.Logistic(effectiveBPM, lowEndMidpointOffset, lowEndMultiplier) * (1.0 + veryHighDensityBonus) + (2.0 * veryHighDensityBonus);
 			
-			double highEndMidpointOffset = 480.0 + (120.0 * highDensityPenalty);
+			double highEndMidpointOffset = 480.0 + (90.0 * highDensityPenalty);
 			double highEndMultiplier = 1.0 / 50.0;
-			double highEndDifficulty = DifficultyCalculationUtils.Logistic(effectiveBPM, highEndMidpointOffset, highEndMultiplier) * (1.0 - highDensityPenalty);
+			double highEndDifficulty = DifficultyCalculationUtils.Logistic(effectiveBPM, highEndMidpointOffset, highEndMultiplier) * (1.0 - Math.Pow(highDensityPenalty, 3));
 			
             return lowEndDifficulty * (0.3 + 1.2 * highEndDifficulty);
         }
