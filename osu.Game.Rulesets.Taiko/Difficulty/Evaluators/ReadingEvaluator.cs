@@ -31,7 +31,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         /// <returns>The reading difficulty value for the given hit object.</returns>
         public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject)
         {
-			// All curves and calculations can be found here https://www.desmos.com/calculator/xquxnvmo9k
+			// All curves and calculations can be found here https://www.desmos.com/calculator/kpen0jckq2
             double effectiveBPM = Math.Max(1.0, noteObject.EffectiveBPM);
 			
 			// Expected deltatime is the deltatime this note would need
@@ -42,21 +42,27 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 
 			// Dense notes are penalised and very dense notes are rewarded
 			double highDensityPenalty = DifficultyCalculationUtils.Logistic(density, 1.0, 9.0);
-			double veryHighDensityBonus = DifficultyCalculationUtils.Logistic(density, 3.75, 4.5);
+			double veryHighDensityBonus = DifficultyCalculationUtils.Logistic(density, 4.0, 4.0);
 			
-			// highEnd starts that low so its effect can apply slowly
-			var lowEnd = new VelocityRange(350, 450);
-			var highEnd = new VelocityRange(355, 605);
+			var midVelocity = new VelocityRange(360, 460);
+			var highVelocity = new VelocityRange(380, 560);
 			
-			double lowEndMidpointOffset = lowEnd.Center + (120.0 * highDensityPenalty) - (200.0 * veryHighDensityBonus);
-			double lowEndMultiplier = (5.0 - 3.5 * veryHighDensityBonus) / lowEnd.Range;
-			double lowEndDifficulty = DifficultyCalculationUtils.Logistic(effectiveBPM, lowEndMidpointOffset, lowEndMultiplier) * (1.0 + veryHighDensityBonus) + (2.0 * veryHighDensityBonus);
+			double midVelDifficulty = 0.3 * DifficultyCalculationUtils.Logistic(
+				effectiveBPM, 
+				midVelocity.Center + (150.0 * highDensityPenalty) - (450.0 * veryHighDensityBonus), 
+				5.0 / midVelocity.Range
+			) + (0.75 * veryHighDensityBonus);
 			
-			double highEndMidpointOffset = highEnd.Center + (90.0 * highDensityPenalty);
-			double highEndMultiplier = 5.0 / highEnd.Range;
-			double highEndDifficulty = DifficultyCalculationUtils.Logistic(effectiveBPM, highEndMidpointOffset, highEndMultiplier) * (1.0 - Math.Pow(highDensityPenalty, 3));
+			double highVelDifficulty = (1.2 - 0.75 * highDensityPenalty) * DifficultyCalculationUtils.Logistic(
+				effectiveBPM,
+				highVelocity.Center + (80.0 * highDensityPenalty) - (450.0 * veryHighDensityBonus),
+				5.0 / highVelocity.Range
+			);
+		
+			double readingDifficulty = midVelDifficulty + highVelDifficulty;
+			// Memory penalty goes here
 			
-            return lowEndDifficulty * (0.3 + 1.2 * highEndDifficulty);
+			return readingDifficulty;
         }
     }
 }
