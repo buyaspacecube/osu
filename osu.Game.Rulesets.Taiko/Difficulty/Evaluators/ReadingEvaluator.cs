@@ -31,7 +31,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         /// <returns>The reading difficulty value for the given hit object.</returns>
         public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject)
         {
-			// All curves and calculations can be found here https://www.desmos.com/calculator/l8fgoynpsu
+			// All curves and calculations can be found here https://www.desmos.com/calculator/4sgaz0he6h
             double effectiveBPM = Math.Max(1.0, noteObject.EffectiveBPM);
 			
 			// Expected deltatime is the deltatime this note would need
@@ -46,7 +46,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 			
 			var highVelocity = new VelocityRange(270, 550);
 			
-			double midpointOffset = highVelocity.Center / (1.0 + 9.0 * veryHighDensityBonus);
+			double midpointOffset = highVelocity.Center / (1.0 + 24.0 * veryHighDensityBonus);
 			double multiplier = 5.0 * (1.0 - 0.45 * highDensityPenalty) * (1.0 + 2.0 * veryHighDensityBonus) / highVelocity.Range;
 			
 			double readingDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(effectiveBPM, midpointOffset, multiplier), 2.5 + (2.0 * highDensityPenalty))
