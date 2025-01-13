@@ -31,7 +31,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         /// <returns>The reading difficulty value for the given hit object.</returns>
         public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject)
         {
-			// All curves and calculations can be found here https://www.desmos.com/calculator/kpen0jckq2
+			// All curves and calculations can be found here https://www.desmos.com/calculator/l8fgoynpsu
             double effectiveBPM = Math.Max(1.0, noteObject.EffectiveBPM);
 			
 			// Expected deltatime is the deltatime this note would need
@@ -44,24 +44,15 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 			double highDensityPenalty = DifficultyCalculationUtils.Logistic(density, 1.0, 9.0);
 			double veryHighDensityBonus = DifficultyCalculationUtils.Logistic(density, 4.0, 4.0);
 			
-			var midVelocity = new VelocityRange(360, 460);
-			var highVelocity = new VelocityRange(380, 560);
+			var highVelocity = new VelocityRange(270, 550);
 			
-			double midVelDifficulty = 0.3 * DifficultyCalculationUtils.Logistic(
-				effectiveBPM, 
-				midVelocity.Center + (150.0 * highDensityPenalty) - (450.0 * veryHighDensityBonus), 
-				5.0 / midVelocity.Range
-			) + (0.75 * veryHighDensityBonus);
+			double midpointOffset = highVelocity.Center / (1.0 + 9.0 * veryHighDensityBonus);
+			double multiplier = 5.0 * (1.0 - 0.45 * highDensityPenalty) * (1.0 + 2.0 * veryHighDensityBonus) / highVelocity.Range;
 			
-			double highVelDifficulty = (1.2 - 0.75 * highDensityPenalty) * DifficultyCalculationUtils.Logistic(
-				effectiveBPM,
-				highVelocity.Center + (80.0 * highDensityPenalty) - (450.0 * veryHighDensityBonus),
-				5.0 / highVelocity.Range
-			);
-		
-			double readingDifficulty = midVelDifficulty + highVelDifficulty;
-			// Memory penalty goes here
+			double readingDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(effectiveBPM, midpointOffset, multiplier), 2.5 + (2.0 * highDensityPenalty))
+			* (1.0 - 0.75 * veryHighDensityBonus) + (0.75 * veryHighDensityBonus);
 			
+			readingDifficulty *= 1.5;
 			return readingDifficulty;
         }
     }
