@@ -23,17 +23,38 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             }
         }
 		
-		public static double evaluateHighVelocityDifficultyOf(double effectiveBPM, double density)
+		public static double evaluateLowVelocityDifficultyOf(double effectiveBPM, bool hasHidden)
 		{
-			// Dense notes are penalised and very dense notes are rewarded
-			double highDensityPenalty = DifficultyCalculationUtils.Logistic(density, 1.0, 9.0);
-			double veryHighDensityBonus = DifficultyCalculationUtils.Logistic(density, 4.0, 4.0);
+			if (hasHidden == false) return 0.0;
+			
+			var lowVelocity = new VelocityRange(120, 200);
+			
+			double lowVelocityDifficulty = 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM, lowVelocity.Center, 9.0 / lowVelocity.Range);
+			
+			return lowVelocityDifficulty;
+		}
 		
-			var highVelocity = new VelocityRange(270, 550);
+		public static double evaluateHighVelocityDifficultyOf(double effectiveBPM, double density, bool hasHidden)
+		{
+			if (hasHidden)
+			{
+				var highVelocity = new VelocityRange(320, 500);
+				
+				double highDensityBonus = DifficultyCalculationUtils.Logistic(density, 3.0, 2.5);
+				
+				return (1.0 - highDensityBonus) * DifficultyCalculationUtils.Logistic(effectiveBPM, highVelocity.Center / (1.0 + 0.3 * highDensityBonus), 4.0 * (1.0 + 0.5 * highDensityBonus) / highVelocity.Range);
+			}
+			else
+			{
+				var highVelocity = new VelocityRange(270, 550);
+				
+				double highDensityPenalty = DifficultyCalculationUtils.Logistic(density, 1.0, 9.0);
+				double veryHighDensityBonus = DifficultyCalculationUtils.Logistic(density, 4.0, 4.0);
+				
+				double thing = DifficultyCalculationUtils.Logistic(effectiveBPM, highVelocity.Center / (1.0 + 24.0 * veryHighDensityBonus), 5.0 * (1.0 - 0.45 * highDensityPenalty) * (1.0 + 2.0 * veryHighDensityBonus) / highVelocity.Range);
 			
-			double thing = DifficultyCalculationUtils.Logistic(effectiveBPM, highVelocity.Center / (1.0 + 24.0 * veryHighDensityBonus), 5.0 * (1.0 - 0.45 * highDensityPenalty) * (1.0 + 2.0 * veryHighDensityBonus) / highVelocity.Range);
-			
-			return Math.Pow(thing, (2.0 * highDensityPenalty) + 2.5) * (1.0 - 0.75 * veryHighDensityBonus);
+				return Math.Pow(thing, (2.0 * highDensityPenalty) + 2.5) * (1.0 - 0.75 * veryHighDensityBonus);
+			}
 		}
 		
 		public static double evaluateDensityDifficultyOf(double effectiveBPM, double density)
@@ -48,10 +69,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 		/// The bonus is determined based on the EffectiveBPM and "note density".
         /// </summary>
         /// <param name="noteObject">The hit object to evaluate.</param>
+		/// <param name="hasHidden">Whether or not the Hidden mod is enabled</param>
         /// <returns>The reading difficulty value for the given hit object.</returns>
-        public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject)
+        public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject, bool hasHidden)
         {
-			// All curves and calculations can be found here https://www.desmos.com/calculator/4sgaz0he6h
             double effectiveBPM = Math.Max(1.0, noteObject.EffectiveBPM);
 			
 			// Expected deltatime is the deltatime this note would need
@@ -60,10 +81,11 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 			// Density is the relation of this note's expected deltatime to its actual deltatime
 			double density = expectedDeltaTime / Math.Max(1.0, noteObject.DeltaTime);
 
-			double highVelocityDifficulty = evaluateHighVelocityDifficultyOf(effectiveBPM, density);
+			double lowVelocityDifficulty = evaluateLowVelocityDifficultyOf(effectiveBPM, hasHidden);
+			double highVelocityDifficulty = evaluateHighVelocityDifficultyOf(effectiveBPM, density, hasHidden);
 			double densityDifficulty = evaluateDensityDifficultyOf(effectiveBPM, density);
 			
-			return (highVelocityDifficulty + densityDifficulty) * 1.5;
+			return (lowVelocityDifficulty + highVelocityDifficulty + densityDifficulty) * 1.5;
         }
     }
 }
