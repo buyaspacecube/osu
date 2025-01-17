@@ -60,7 +60,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             new TaikoModHalfTime(),
             new TaikoModEasy(),
             new TaikoModHardRock(),
-			new TaikoModHidden()
+			new TaikoModHidden(),
+			new TaikoModFlashlight()
         };
 
         protected override IEnumerable<DifficultyHitObject> CreateDifficultyHitObjects(IBeatmap beatmap, double clockRate)
