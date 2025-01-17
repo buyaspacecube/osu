@@ -50,7 +50,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 			var lowVelocity = new VelocityRange(10, 150);
 			var highVelocity = new VelocityRange(240, 550);
 
-			// All curves can be found here https://www.desmos.com/calculator/0a5evgsj5f
+			// All curves can be found here https://www.desmos.com/calculator/bjf4rpn0bq
 			// Stay tuned for comments actually explaining all this
 			double readingDifficulty;
 			
@@ -66,23 +66,24 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 			
 			else if (hasFlashlight)
 			{
-				double flVeryHighDensityBonus = DifficultyCalculationUtils.Logistic(objectDensity, 4.0, 4.0);
-				double flBonusNormalised = 0.75 * Math.Pow(flVeryHighDensityBonus, 0.8);
+				double flVeryHighDensityBonus = Math.Pow(DifficultyCalculationUtils.Logistic(objectDensity, 3.5, 1.5), 3.0);
 				
 				double flHighVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(2.0 * effectiveBPM, highVelocity.Center / (1.0 + flVeryHighDensityBonus), 5.0 / highVelocity.Range), 2.5);
 				
-				readingDifficulty = (1.0 - flBonusNormalised) * flHighVelocityDifficulty + flBonusNormalised;
+				readingDifficulty = (1.0 - flVeryHighDensityBonus) * flHighVelocityDifficulty + flVeryHighDensityBonus;
 			}
 			
 			else
 			{
 				double highDensityPenalty = DifficultyCalculationUtils.Logistic(objectDensity, 1.0, 9.0);
-				double veryHighDensityBonus = DifficultyCalculationUtils.Logistic(objectDensity, 4.0, 4.0);
+				double veryHighDensityBonus = Math.Pow(DifficultyCalculationUtils.Logistic(objectDensity, 3.5, 1.5), 3.0);
 				
 				double highVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(effectiveBPM, (highVelocity.Center / (1.0 + 3.0 * veryHighDensityBonus)) + (120.0 * highDensityPenalty), 5.0 / highVelocity.Range), (2.5 - highDensityPenalty));
 
-				readingDifficulty = (1.0 - 0.75 * veryHighDensityBonus) * highVelocityDifficulty + (0.75 * veryHighDensityBonus);
+				readingDifficulty = (1.0 - veryHighDensityBonus) * highVelocityDifficulty + veryHighDensityBonus;
 			}
+			
+			System.Console.WriteLine(readingDifficulty);
 			
 			return readingDifficulty * 1.5;
         }
