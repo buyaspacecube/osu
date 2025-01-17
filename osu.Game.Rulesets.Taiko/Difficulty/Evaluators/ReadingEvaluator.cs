@@ -83,8 +83,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 				readingDifficulty = (1.0 - veryHighDensityBonus) * highVelocityDifficulty + veryHighDensityBonus;
 			}
 			
-			System.Console.WriteLine(readingDifficulty);
-			
 			return readingDifficulty * 1.5;
         }
     }
