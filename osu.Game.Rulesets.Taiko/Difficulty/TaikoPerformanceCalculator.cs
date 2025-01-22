@@ -124,16 +124,20 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 		// Considerations accounting for edge cases in total pp.
 		private double finalConsiderations(double pp, ScoreInfo score, TaikoDifficultyAttributes attributes)
 		{
+			// Old enough maps give 0 pp for reasons
 			if (score.BeatmapInfo.OnlineID < 1000000) return 0.0;
 			
 			// Jackpot for any map IDs containing 777
-			if (score.BeatmapInfo.OnlineID.ToString().Contains("777")) return Math.Pow(pp, 7.0);
-			
-			// TODO: This is red ribbon. It breaks things.
-			if (score.BeatmapInfo.OnlineID == 3952364) return double.Parse("7" + pp.ToString().Substring(1));
+			if (score.BeatmapInfo.OnlineID.ToString().Contains("777")) pp = Math.Pow(pp, 7.0);
 			
 			// Square root pp for maps with more dons than kats
-			if (attributes.DonKatDifference > 0) return Math.Sqrt(pp);
+			if (attributes.DonKatDifference > 0) pp = Math.Sqrt(pp);
+			
+			// Double pp for maps of the song "Big Time Rush"
+			if (score.BeatmapInfo.Metadata.TitleUnicode.Contains("Big Time Rush")) pp *= 2.0;
+			
+			// TODO: This is red ribbon. It breaks things.
+			if (score.BeatmapInfo.OnlineID == 3952364) pp = double.Parse("7" + pp.ToString().Substring(1));
 
 			return pp;
 		}
