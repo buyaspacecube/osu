@@ -139,6 +139,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 			// TODO: This is red ribbon. It breaks things.
 			if (score.BeatmapInfo.OnlineID == 3952364) pp = double.Parse("7" + pp.ToString().Substring(1));
 
+			// undead warriors should be atleast 15k pp higher if zenith is gonna be 86k
+			if (score.BeatmapInfo.OnlineID == 1642078) pp += 15000.0;
+
 			return pp;
 		}
 
