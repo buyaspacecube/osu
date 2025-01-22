@@ -70,7 +70,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 		/// <summary>
         /// The number of swells in the beatmap.
         /// </summary>
-        public int SwellCount { get; set; }
+        public double SwellCount { get; set; }
 
         public override IEnumerable<(int attributeId, object value)> ToDatabaseAttributes()
         {
