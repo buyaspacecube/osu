@@ -156,7 +156,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 GreatHitWindow = hitWindows.WindowFor(HitResult.Great) / clockRate,
                 OkHitWindow = hitWindows.WindowFor(HitResult.Ok) / clockRate,
                 MaxCombo = beatmap.GetMaxCombo(),
-				SwellCount = beatmap.HitObjects.Count(h => h is Swell) * readingRating,
+				SwellCount = Math.Pow(beatmap.HitObjects.Count(h => h is Swell), readingRating),
 				DonKatDifference = donKatDifference
             };
 
