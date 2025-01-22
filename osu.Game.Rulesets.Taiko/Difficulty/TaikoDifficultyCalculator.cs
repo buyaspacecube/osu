@@ -18,6 +18,7 @@ using osu.Game.Rulesets.Taiko.Difficulty.Preprocessing.Rhythm.Data;
 using osu.Game.Rulesets.Taiko.Difficulty.Skills;
 using osu.Game.Rulesets.Taiko.Mods;
 using osu.Game.Rulesets.Taiko.Scoring;
+using osu.Game.Rulesets.Taiko.Objects;
 
 namespace osu.Game.Rulesets.Taiko.Difficulty
 {
@@ -151,6 +152,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 GreatHitWindow = hitWindows.WindowFor(HitResult.Great) / clockRate,
                 OkHitWindow = hitWindows.WindowFor(HitResult.Ok) / clockRate,
                 MaxCombo = beatmap.GetMaxCombo(),
+				SwellCount = beatmap.HitObjects.Count(h => h is Swell)
             };
 
             return attributes;

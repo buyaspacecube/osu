@@ -66,6 +66,11 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         /// </remarks>
         [JsonProperty("ok_hit_window")]
         public double OkHitWindow { get; set; }
+		
+		/// <summary>
+        /// The number of swells in the beatmap.
+        /// </summary>
+        public int SwellCount { get; set; }
 
         public override IEnumerable<(int attributeId, object value)> ToDatabaseAttributes()
         {

@@ -59,7 +59,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 Math.Pow(
                     Math.Pow(difficultyValue, 1.1) +
                     Math.Pow(accuracyValue, 1.1), 1.0 / 1.1
-                ) * multiplier;
+                ) * multiplier
+				+ 5.0 * taikoAttributes.SwellCount;
 
             return new TaikoPerformanceAttributes
             {
