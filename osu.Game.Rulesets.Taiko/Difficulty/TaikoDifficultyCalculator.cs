@@ -131,7 +131,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                                 + Math.Min(Math.Max((staminaRating - 7.0) / 1.0, 0), 0.05);
 
             double combinedRating = combinedDifficultyValue(rhythm, reading, colour, stamina, isRelax, isConvert);
-            double starRating = rescale(combinedRating * 1.4);
+            double starRating = rescale(combinedRating);
 
             HitWindows hitWindows = new TaikoHitWindows();
             hitWindows.SetDifficulty(beatmap.Difficulty.OverallDifficulty);
@@ -207,8 +207,12 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         private double rescale(double sr)
         {
             if (sr < 0) return sr;
+			
+			// Star rating is scaled specifically such that https://osu.ppy.sh/beatmaps/3138457 is infinite because i say so
+			double central = 10.483940243659221;
+			double exponent = Math.Pow(sr, 4.0) / 39.19118;
 
-            return 10.43 * Math.Log(sr / 8 + 1);
+            return Math.Pow(10, exponent);
         }
     }
 }
