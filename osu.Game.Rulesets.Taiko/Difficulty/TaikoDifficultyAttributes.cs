@@ -71,6 +71,11 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         /// The number of swells in the beatmap.
         /// </summary>
         public double SwellCount { get; set; }
+		
+		/// <summary>
+		/// The difference in number of dons and kats in the beatmap.
+		/// </summary>
+		public double DonKatDifference { get; set; }
 
         public override IEnumerable<(int attributeId, object value)> ToDatabaseAttributes()
         {

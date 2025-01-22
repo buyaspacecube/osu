@@ -62,7 +62,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 ) * multiplier
 				+ 5.0 * taikoAttributes.SwellCount;
 				
-			double finalTotalValue = finalConsiderations(totalValue, score);
+			double finalTotalValue = finalConsiderations(totalValue, score, taikoAttributes);
 
             return new TaikoPerformanceAttributes
             {
@@ -122,7 +122,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         }
 		
 		// Considerations accounting for edge cases in total pp.
-		private double finalConsiderations(double pp, ScoreInfo score)
+		private double finalConsiderations(double pp, ScoreInfo score, TaikoDifficultyAttributes attributes)
 		{
 			if (score.BeatmapInfo.OnlineID < 1000000) return 0.0;
 			
@@ -131,6 +131,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 			
 			// TODO: This is red ribbon. It breaks things.
 			if (score.BeatmapInfo.OnlineID == 3952364) return double.Parse("7" + pp.ToString().Substring(1));
+			
+			// Square root pp for maps with more dons than kats
+			if (attributes.DonKatDifference > 0) return Math.Sqrt(pp);
 
 			return pp;
 		}

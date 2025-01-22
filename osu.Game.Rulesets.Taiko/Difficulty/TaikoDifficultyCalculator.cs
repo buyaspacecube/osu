@@ -34,6 +34,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         private double patternMultiplier;
 
         private bool isConvert;
+		
+		private double donKatDifference;
 
         public override int Version => 20241007;
 
@@ -97,6 +99,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             SamePatterns.GroupPatterns(groupedHitObjects);
             bpmLoader.ProcessEffectiveBPM(beatmap.ControlPointInfo, clockRate);
 
+			donKatDifference = centreObjects.Count - rimObjects.Count;
+
             return difficultyHitObjects;
         }
 
@@ -152,7 +156,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 GreatHitWindow = hitWindows.WindowFor(HitResult.Great) / clockRate,
                 OkHitWindow = hitWindows.WindowFor(HitResult.Ok) / clockRate,
                 MaxCombo = beatmap.GetMaxCombo(),
-				SwellCount = beatmap.HitObjects.Count(h => h is Swell) * readingRating
+				SwellCount = beatmap.HitObjects.Count(h => h is Swell) * readingRating,
+				DonKatDifference = donKatDifference
             };
 
             return attributes;
