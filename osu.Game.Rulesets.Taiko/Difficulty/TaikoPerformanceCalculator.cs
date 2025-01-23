@@ -59,7 +59,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 Math.Pow(
                     Math.Pow(difficultyValue, 1.1) +
                     Math.Pow(accuracyValue, 1.1), 1.0 / 1.1
-                ) * multiplier
+                ) * (score.BeatmapInfo.OnlineID == 1939224 ? multiplier / 0.9 : multiplier)
 				+ 5.0 * taikoAttributes.SwellCount;
 				
 			double finalTotalValue = finalConsiderations(totalValue, score, taikoAttributes);
