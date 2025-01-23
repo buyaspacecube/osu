@@ -127,6 +127,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 			// Old enough maps give 0 pp for reasons
 			if (score.BeatmapInfo.OnlineID < 1000000) return 0.0;
 			
+			// Blind notation pp for some maps
+			if (score.BeatmapInfo.OnlineID % 10 == 0 && (countGreat + countOk + countMeh) != score.MaxCombo) return 0.0;
+			
 			// Jackpot for any map IDs containing 777
 			if (score.BeatmapInfo.OnlineID.ToString().Contains("777")) pp = Math.Pow(pp, 7.0);
 			
