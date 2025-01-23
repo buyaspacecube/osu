@@ -18,7 +18,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         /// </summary>
         public static double EvaluateDifficultyOf(DifficultyHitObject hitObject, double hitWindow)
         {
-            TaikoDifficultyHitObjectRhythm rhythm = ((TaikoDifficultyHitObject)hitObject).Rhythm;
+			var taikoObject = (TaikoDifficultyHitObject)hitObject;
+            TaikoDifficultyHitObjectRhythm rhythm = taikoObject.Rhythm;
             double difficulty = 0.0d;
 
             double sameRhythm = 0;
@@ -36,7 +37,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 
             difficulty += Math.Max(sameRhythm, samePattern) * intervalPenalty;
 
-            return difficulty;
+            return taikoObject.KiaiActive ? difficulty * 2.0 : difficulty;
         }
 
         private static double evaluateDifficultyOf(SameRhythmHitObjects sameRhythmHitObjects, double hitWindow)

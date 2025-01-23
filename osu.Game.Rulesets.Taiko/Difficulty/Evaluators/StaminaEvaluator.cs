@@ -69,7 +69,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             if (previousMono != null)
                 objectStrain += speedBonus(taikoCurrent.StartTime - previousMono.StartTime) + 0.5 * speedBonus(taikoCurrent.StartTime - taikoPrevious.StartTime);
 
-            return objectStrain;
+            return taikoCurrent.KiaiActive ? objectStrain * 2.0 : objectStrain;
         }
     }
 }

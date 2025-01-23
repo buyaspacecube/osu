@@ -50,7 +50,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             double highVelocityDifficulty = (1.0 - 0.33 * densityPenalty) * DifficultyCalculationUtils.Logistic
                 (effectiveBPM, highVelocity.Center + 8 * densityPenalty, (1.0 + 0.5 * densityPenalty) / (highVelocity.Range / 10));
 
-            return midVelocityDifficulty + highVelocityDifficulty;
+			return noteObject.KiaiActive ? (midVelocityDifficulty + highVelocityDifficulty) * 2.0 : midVelocityDifficulty + highVelocityDifficulty;
         }
     }
 }

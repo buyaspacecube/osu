@@ -19,6 +19,7 @@ using osu.Game.Rulesets.Taiko.Difficulty.Skills;
 using osu.Game.Rulesets.Taiko.Mods;
 using osu.Game.Rulesets.Taiko.Scoring;
 using osu.Game.Rulesets.Taiko.Objects;
+using osu.Game.Beatmaps.ControlPoints;
 
 namespace osu.Game.Rulesets.Taiko.Difficulty
 {
@@ -98,6 +99,15 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             TaikoColourDifficultyPreprocessor.ProcessAndAssign(difficultyHitObjects);
             SamePatterns.GroupPatterns(groupedHitObjects);
             bpmLoader.ProcessEffectiveBPM(beatmap.ControlPointInfo, clockRate);
+			
+			// Assign KiaiActive to each TaikoDifficultyHitObject
+			foreach (TaikoDifficultyHitObject hitObject in difficultyHitObjects)
+			{
+				double startTime = hitObject.StartTime * clockRate;
+				
+				var activeEffectControlPoint = beatmap.ControlPointInfo.EffectPointAt(startTime);
+				hitObject.KiaiActive = activeEffectControlPoint.KiaiMode;
+			}
 
 			donKatDifference = centreObjects.Count - rimObjects.Count;
 

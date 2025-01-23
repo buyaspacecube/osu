@@ -56,6 +56,11 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Preprocessing
         /// The adjusted BPM of this hit object, based on its slider velocity and scroll speed.
         /// </summary>
         public double EffectiveBPM;
+		
+		/// <summary>
+		/// Whether kiai mode is active for this hit object.
+		/// </summary>
+		public bool KiaiActive;
 
         /// <summary>
         /// The current slider velocity of this hit object.
