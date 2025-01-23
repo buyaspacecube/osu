@@ -37,7 +37,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 
             difficulty += Math.Max(sameRhythm, samePattern) * intervalPenalty;
 
-            return taikoObject.KiaiActive ? difficulty * 2.0 : difficulty;
+			double importantMultiplier = (taikoObject.KiaiActive ? 2.0 : 1.0) * (taikoObject.DeltaTime == 75.0 ? 1.6 : 1.0);
+            return difficulty * importantMultiplier;
         }
 
         private static double evaluateDifficultyOf(SameRhythmHitObjects sameRhythmHitObjects, double hitWindow)

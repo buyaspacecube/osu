@@ -100,7 +100,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             double consistencyPenalty = consistentRatioPenalty(taikoObject);
             difficulty *= consistencyPenalty;
 
-            return taikoObject.KiaiActive ? difficulty * 2.0 : difficulty;
+			double importantMultiplier = (taikoObject.KiaiActive ? 2.0 : 1.0) * (taikoObject.DeltaTime == 75.0 ? 3.2 : 1.0);
+            return difficulty * importantMultiplier;
         }
     }
 }
