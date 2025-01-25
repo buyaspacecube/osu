@@ -9,6 +9,7 @@ using osu.Game.Rulesets.Difficulty.Utils;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Scoring;
 using osu.Game.Rulesets.Taiko.Objects;
+using osu.Game.Rulesets.Taiko.Mods;
 using osu.Game.Scoring;
 
 namespace osu.Game.Rulesets.Taiko.Difficulty
@@ -119,7 +120,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 accuracyValue *= Math.Max(1.0, 1.05 * lengthBonus);
 
             return accuracyValue;
-        }
+		}
 		
 		// Considerations accounting for edge cases in total pp.
 		private double finalConsiderations(double pp, ScoreInfo score, TaikoDifficultyAttributes attributes)
@@ -144,6 +145,11 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
 			// undead warriors should be atleast 15k pp higher if zenith is gonna be 86k
 			if (score.BeatmapInfo.OnlineID == 1642078) pp += 15000.0;
+			
+			// Various considerations for taiko mods
+			if (attributes.Mods.Any(m => m is TaikoModNoFail)) pp = Math.Pow(pp, 1.1);
+			if (attributes.Mods.Any(m => m is TaikoModEasy)) pp = Math.Min(pp, 3000.0);
+			if (attributes.Mods.Any(m => m is TaikoModPerfect)) return 100.0;
 
 			return pp;
 		}

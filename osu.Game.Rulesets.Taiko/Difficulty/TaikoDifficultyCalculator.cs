@@ -146,7 +146,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                                 + Math.Min(Math.Max((staminaRating - 7.0) / 1.0, 0), 0.05);
 
             double combinedRating = combinedDifficultyValue(rhythm, reading, colour, stamina, isRelax, isConvert);
-            double starRating = rescale(combinedRating * 1.4);
+            double starRating = rescale(combinedRating * 1.4, beatmap, mods);
 
             HitWindows hitWindows = new TaikoHitWindows();
             hitWindows.SetDifficulty(beatmap.Difficulty.OverallDifficulty);
@@ -221,11 +221,18 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         /// Applies a final re-scaling of the star rating.
         /// </summary>
         /// <param name="sr">The raw star rating value before re-scaling.</param>
-        private double rescale(double sr)
+		/// <param name="beatmap">The beatmap being calculated.</param>
+		/// <param name="mods">The mods used.</param>
+        private double rescale(double sr, IBeatmap beatmap, Mod[] mods)
         {
             if (sr < 0) return sr;
-
-            return 10.43 * Math.Log(sr / 8 + 1);
+			
+			double rescale = Math.Log(sr / 8 + 1);
+			rescale *= mods.Any(h => h is TaikoModNoFail) ? 1.043 : 10.43;
+			
+			if (mods.Any(h => h is TaikoModSuddenDeath)) rescale *= (beatmap.BeatmapInfo.OnlineID % 2 == 0 ? 0.8 : 1.2);
+			
+			return rescale;
         }
     }
 }
