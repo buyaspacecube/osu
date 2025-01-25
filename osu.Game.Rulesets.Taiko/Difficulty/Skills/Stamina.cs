@@ -37,7 +37,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
             this.isConvert = isConvert;
         }
 
-        private double strainDecay(double ms) => Math.Pow(strainDecayBase, ms / 1000);
+        private double strainDecay(double ms) => Math.Pow(strainDecayBase, ms / 700);
 
         protected override double StrainValueAt(DifficultyHitObject current)
         {
@@ -48,10 +48,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
             var currentObject = current as TaikoDifficultyHitObject;
             int index = currentObject?.Colour.MonoStreak?.HitObjects.IndexOf(currentObject) ?? 0;
 
-            double monolengthBonus = isConvert ? 1 : 1 + Math.Min(Math.Max((index - 5) / 50.0, 0), 0.30);
+            double monolengthBonus = isConvert ? 1 : 1 + Math.Min(Math.Max((index - 5) / 50.0, 0), 0.425);
 
             if (SingleColourStamina)
-                return DifficultyCalculationUtils.Logistic(-(index - 10) / 2.0, currentStrain);
+                return DifficultyCalculationUtils.Logistic(-(index - 15) / 2.0, currentStrain);
 
             return currentStrain * monolengthBonus;
         }

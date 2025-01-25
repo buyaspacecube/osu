@@ -25,7 +25,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 {
     public class TaikoDifficultyCalculator : DifficultyCalculator
     {
-        private const double difficulty_multiplier = 0.084375;
+        private const double difficulty_multiplier = 0.0982125;
         private const double rhythm_skill_multiplier = 0.65 * difficulty_multiplier;
         private const double reading_skill_multiplier = 0.100 * difficulty_multiplier;
         private const double colour_skill_multiplier = 0.375 * difficulty_multiplier;
@@ -142,8 +142,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             patternMultiplier = Math.Pow(staminaRating * colourRating, 0.10);
 
             strainLengthBonus = 1
-                                + Math.Min(Math.Max((staminaDifficultStrains - 1000) / 3700, 0), 0.15)
-                                + Math.Min(Math.Max((staminaRating - 7.0) / 1.0, 0), 0.05);
+                                + Math.Min(Math.Max((staminaDifficultStrains - 800) / 3700, 0), 0.3)
+                                + Math.Min(Math.Max((staminaRating - 7.0) / 2.0, 0), 0.45);
 
             double combinedRating = combinedDifficultyValue(rhythm, reading, colour, stamina, isRelax, isConvert);
             double starRating = rescale(combinedRating * 1.4, beatmap, mods);
@@ -195,7 +195,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 double readingPeak = readingPeaks[i] * reading_skill_multiplier;
                 double colourPeak = isRelax ? 0 : colourPeaks[i] * colour_skill_multiplier; // There is no colour difficulty in relax.
                 double staminaPeak = staminaPeaks[i] * stamina_skill_multiplier * strainLengthBonus;
-                staminaPeak /= isConvert || isRelax ? 1.5 : 1.0; // Available finger count is increased by 150%, thus we adjust accordingly.
+                staminaPeak /= isConvert || isRelax ? 2.85 : 1.0; // Available finger count is increased by 150%, thus we adjust accordingly.
 
                 double peak = DifficultyCalculationUtils.Norm(2, DifficultyCalculationUtils.Norm(1.5, colourPeak, staminaPeak), rhythmPeak, readingPeak);
 
@@ -211,7 +211,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             foreach (double strain in peaks.OrderDescending())
             {
                 difficulty += strain * weight;
-                weight *= 0.9;
+                weight *= 0.8;
             }
 
             return difficulty;

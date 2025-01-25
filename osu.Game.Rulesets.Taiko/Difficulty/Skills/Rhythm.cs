@@ -31,7 +31,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 
             // To prevent abuse of exceedingly long intervals between awkward rhythms, we penalise its difficulty.
             double staminaDifficulty = StaminaEvaluator.EvaluateDifficultyOf(current) - 0.5; // Remove base strain
-            difficulty *= DifficultyCalculationUtils.Logistic(staminaDifficulty, 1 / 15.0, 50.0);
+            difficulty *= DifficultyCalculationUtils.Logistic(staminaDifficulty, 1 / 100.0, 25.0);
 
             return difficulty;
         }

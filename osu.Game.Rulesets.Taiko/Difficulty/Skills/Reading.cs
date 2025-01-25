@@ -17,7 +17,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
     public class Reading : StrainDecaySkill
     {
         protected override double SkillMultiplier => 1.0;
-        protected override double StrainDecayBase => 0.4;
+        protected override double StrainDecayBase => 0.6;
 
         private double currentStrain;
 
@@ -37,7 +37,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
             var taikoObject = (TaikoDifficultyHitObject)current;
             int index = taikoObject.Colour.MonoStreak?.HitObjects.IndexOf(taikoObject) ?? 0;
 
-            currentStrain *= DifficultyCalculationUtils.Logistic(index, 4, -1 / 25.0, 0.5) + 0.5;
+            currentStrain *= DifficultyCalculationUtils.Logistic(index, 7.5, -1 / 25.0, 0.5) + 0.5;
 
             currentStrain *= StrainDecayBase;
             currentStrain += ReadingEvaluator.EvaluateDifficultyOf(taikoObject) * SkillMultiplier;
