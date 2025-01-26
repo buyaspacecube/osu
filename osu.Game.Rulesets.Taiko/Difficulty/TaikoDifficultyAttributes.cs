@@ -17,10 +17,16 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         public double RhythmDifficulty { get; set; }
 
         /// <summary>
-        /// The difficulty corresponding to the reading skill.
+        /// The difficulty corresponding to the reading skill from note velocity.
         /// </summary>
-        [JsonProperty("reading_difficulty")]
-        public double ReadingDifficulty { get; set; }
+        [JsonProperty("velocity_reading_difficulty")]
+        public double VelocityReadingDifficulty { get; set; }
+		
+		/// <summary>
+        /// The difficulty corresponding to the reading skill from other factors.
+        /// </summary>
+        [JsonProperty("other_reading_difficulty")]
+        public double OtherReadingDifficulty { get; set; }
 
         /// <summary>
         /// The difficulty corresponding to the colour skill.

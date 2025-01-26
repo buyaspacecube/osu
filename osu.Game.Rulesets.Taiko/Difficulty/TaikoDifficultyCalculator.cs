@@ -47,7 +47,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             return new Skill[]
             {
                 new Rhythm(mods, hitWindows.WindowFor(HitResult.Great) / clockRate),
-                new Reading(mods),
+                new Reading(mods, true),
+				new Reading(mods, false),
                 new Colour(mods),
                 new Stamina(mods, false),
                 new Stamina(mods, true)
@@ -108,13 +109,15 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             bool isRelax = mods.Any(h => h is TaikoModRelax);
 
             Rhythm rhythm = (Rhythm)skills.First(x => x is Rhythm);
-            Reading reading = (Reading)skills.First(x => x is Reading);
+            Reading velocityReading = (Reading)skills.First(x => x is Reading);
+			Reading otherReading = (Reading)skills.Last(x => x is Reading);
             Colour colour = (Colour)skills.First(x => x is Colour);
             Stamina stamina = (Stamina)skills.First(x => x is Stamina);
             Stamina singleColourStamina = (Stamina)skills.Last(x => x is Stamina);
 
             double rhythmRating = rhythm.DifficultyValue() * rhythm_skill_multiplier;
-            double readingRating = reading.DifficultyValue() * reading_skill_multiplier;
+            double velocityReadingRating = velocityReading.DifficultyValue() * reading_skill_multiplier;
+			double otherReadingRating = otherReading.DifficultyValue() * reading_skill_multiplier;
             double colourRating = colour.DifficultyValue() * colour_skill_multiplier;
             double staminaRating = stamina.DifficultyValue() * stamina_skill_multiplier;
             double monoStaminaRating = singleColourStamina.DifficultyValue() * stamina_skill_multiplier;
@@ -130,7 +133,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                                 + Math.Min(Math.Max((staminaDifficultStrains - 1350) / 5000, 0), 0.15)
                                 + Math.Min(Math.Max((staminaRating - 7.0) / 1.0, 0), 0.05);
 
-            double combinedRating = combinedDifficultyValue(rhythm, reading, colour, stamina, isRelax);
+            double combinedRating = combinedDifficultyValue(rhythm, velocityReading, otherReading, colour, stamina, isRelax);
             double starRating = rescale(combinedRating * 1.4);
 
             // Converts are penalised outside the scope of difficulty calculation, as our assumptions surrounding standard play-styles becomes out-of-scope.
@@ -151,7 +154,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 StarRating = starRating,
                 Mods = mods,
                 RhythmDifficulty = rhythmRating,
-                ReadingDifficulty = readingRating,
+                VelocityReadingDifficulty = velocityReadingRating,
+				OtherReadingDifficulty = otherReadingRating,
                 ColourDifficulty = colourRating,
                 StaminaDifficulty = staminaRating,
                 MonoStaminaFactor = monoStaminaFactor,
@@ -173,19 +177,20 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         /// For each section, the peak strains of all separate skills are combined into a single peak strain for the section.
         /// The resulting partial rating of the beatmap is a weighted sum of the combined peaks (higher peaks are weighted more).
         /// </remarks>
-        private double combinedDifficultyValue(Rhythm rhythm, Reading reading, Colour colour, Stamina stamina, bool isRelax)
+        private double combinedDifficultyValue(Rhythm rhythm, Reading velocityReading, Reading otherReading, Colour colour, Stamina stamina, bool isRelax)
         {
             List<double> peaks = new List<double>();
 
             var rhythmPeaks = rhythm.GetCurrentStrainPeaks().ToList();
-            var readingPeaks = reading.GetCurrentStrainPeaks().ToList();
+            var velocityReadingPeaks = velocityReading.GetCurrentStrainPeaks().ToList();
+			var otherReadingPeaks = otherReading.GetCurrentStrainPeaks().ToList();
             var colourPeaks = colour.GetCurrentStrainPeaks().ToList();
             var staminaPeaks = stamina.GetCurrentStrainPeaks().ToList();
 
             for (int i = 0; i < colourPeaks.Count; i++)
             {
                 double rhythmPeak = rhythmPeaks[i] * rhythm_skill_multiplier * strainLengthBonus * patternScale;
-                double readingPeak = readingPeaks[i] * reading_skill_multiplier;
+                double readingPeak = (velocityReadingPeaks[i] + otherReadingPeaks[i]) * reading_skill_multiplier;
                 double colourPeak = colourPeaks[i] * colour_skill_multiplier;
                 double staminaPeak = staminaPeaks[i] * stamina_skill_multiplier * strainLengthBonus;
 

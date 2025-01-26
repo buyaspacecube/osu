@@ -23,15 +23,44 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             }
         }
 		
-        /// <summary>
-        /// Calculates the influence of slider velocities on hitobject difficulty.
-		/// The bonus is determined based on the EffectiveBPM and "note density".
-        /// </summary>
-        /// <param name="noteObject">The hit object to evaluate.</param>
-		/// <param name="hasHidden">Whether or not the Hidden mod is enabled.</param>
-		/// <param name="hasFlashlight">Whether or not the Flashlight mod is enabled.</param>
-        /// <returns>The reading difficulty value for the given hit object.</returns>
-        public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject, bool hasHidden, bool hasFlashlight)
+		// Stay tuned for comments actually explaining all this
+		
+		public static double EvaluateVelocityDifficultyOf(double effectiveBPM, double objectDensity, bool hasHidden, bool hasFlashlight)
+		{
+			var lowVelocity = new VelocityRange(10, 150);
+			double lowVelocityDifficulty = 0.0;
+			
+			var highVelocity = new VelocityRange(240, 550);
+			double highVelocityDifficulty = 0.0;
+			
+			if (hasHidden)
+			{
+				lowVelocityDifficulty = 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM, lowVelocity.Center, 10.0 / lowVelocity.Range);
+				highVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(1.2 * effectiveBPM, highVelocity.Center, 5.0 / highVelocity.Range), 3.0);
+			}
+			else if (hasFlashlight)
+			{
+				highVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(2.0 * effectiveBPM, highVelocity.Center, 5.0 / highVelocity.Range), 2.5);
+			}
+			else
+			{
+				double highDensityPenalty = DifficultyCalculationUtils.Logistic(objectDensity, 1.0, 9.0);
+				
+				highVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(effectiveBPM, highVelocity.Center + (180.0 * highDensityPenalty), 5.0 / highVelocity.Range), (2.5 - highDensityPenalty));
+			}
+			
+			return lowVelocityDifficulty + highVelocityDifficulty;
+		}
+		
+		public static double EvaluateOtherDifficultyOf(double objectDensity, bool hasHidden)
+		{
+			if (hasHidden) return DifficultyCalculationUtils.Logistic(objectDensity, 3.0, 2.5);
+			
+			else return Math.Pow(DifficultyCalculationUtils.Logistic(objectDensity, 3.5, 1.5), 3.0);
+		}
+
+
+        public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject, bool isVelocity, bool hasHidden, bool hasFlashlight)
         {
 			// Until memory considerations are added, all notes give 1.5 reading difficulty with HDFL
 			if (hasHidden && hasFlashlight)
@@ -49,41 +78,14 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 
 			var lowVelocity = new VelocityRange(10, 150);
 			var highVelocity = new VelocityRange(240, 550);
-
-			// All curves can be found here https://www.desmos.com/calculator/bjf4rpn0bq
-			// Stay tuned for comments actually explaining all this
-			double readingDifficulty;
 			
-			if (hasHidden)
-			{
-				double hdHighDensityBonus = DifficultyCalculationUtils.Logistic(objectDensity, 3.0, 2.5);
-				
-				double hdLowVelocityDifficulty = 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM, lowVelocity.Center * (1.0 + 2.0 * hdHighDensityBonus), 10.0 / lowVelocity.Range);
-				double hdHighVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(1.2 * effectiveBPM, highVelocity.Center, 5.0 * (1.0 + hdHighDensityBonus) / highVelocity.Range), 3.0);
-				
-				readingDifficulty = (1.0 - hdHighDensityBonus) * (hdLowVelocityDifficulty + hdHighVelocityDifficulty) + hdHighDensityBonus;
-			}
+			double velocityDifficulty = EvaluateVelocityDifficultyOf(effectiveBPM, objectDensity, hasHidden, hasFlashlight);
+			double otherDifficulty = EvaluateOtherDifficultyOf(objectDensity, hasHidden);
 			
-			else if (hasFlashlight)
-			{
-				double flVeryHighDensityBonus = Math.Pow(DifficultyCalculationUtils.Logistic(objectDensity, 3.5, 1.5), 3.0);
-				
-				double flHighVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(2.0 * effectiveBPM, highVelocity.Center / (1.0 + flVeryHighDensityBonus), 5.0 / highVelocity.Range), 2.5);
-				
-				readingDifficulty = (1.0 - flVeryHighDensityBonus) * flHighVelocityDifficulty + flVeryHighDensityBonus;
-			}
-			
+			if (isVelocity)
+				return (1.0 - otherDifficulty) * velocityDifficulty;
 			else
-			{
-				double highDensityPenalty = DifficultyCalculationUtils.Logistic(objectDensity, 1.0, 9.0);
-				double veryHighDensityBonus = Math.Pow(DifficultyCalculationUtils.Logistic(objectDensity, 3.5, 1.5), 3.0);
-				
-				double highVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(effectiveBPM, (highVelocity.Center / (1.0 + 3.0 * veryHighDensityBonus)) + (120.0 * highDensityPenalty), 5.0 / highVelocity.Range), (2.5 - highDensityPenalty));
-
-				readingDifficulty = (1.0 - veryHighDensityBonus) * highVelocityDifficulty + veryHighDensityBonus;
-			}
-			
-			return readingDifficulty * 1.5;
+				return otherDifficulty;
         }
     }
 }
