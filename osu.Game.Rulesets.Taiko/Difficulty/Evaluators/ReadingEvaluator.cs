@@ -62,11 +62,11 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 
         public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject, bool isVelocity, bool hasHidden, bool hasFlashlight)
         {
-			// Until memory considerations are added, all notes give 1.5 reading difficulty with HDFL
+			// Until memory considerations are added, all notes give 1.0 reading difficulty with HDFL
 			// This is all added as other difficulty and none as velocity
 			if (hasHidden && hasFlashlight)
 			{
-				return isVelocity ? 0.0 : 1.5;
+				return isVelocity ? 0.0 : 1.0;
 			}
 			
             double effectiveBPM = Math.Max(1.0, noteObject.EffectiveBPM);
@@ -84,9 +84,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 			double otherDifficulty = EvaluateOtherDifficultyOf(objectDensity, hasHidden);
 			
 			if (isVelocity)
-				return 1.5 * (1.0 - otherDifficulty) * velocityDifficulty;
+				return (1.0 - otherDifficulty) * velocityDifficulty;
 			else
-				return 1.5 * otherDifficulty;
+				return otherDifficulty;
         }
     }
 }
