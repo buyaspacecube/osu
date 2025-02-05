@@ -23,39 +23,40 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             }
         }
 		
-		// Stay tuned for comments actually explaining all this
+		// All curves can be found here https://www.desmos.com/calculator/jlit0ppur6
 		
 		public static double EvaluateVelocityDifficultyOf(double effectiveBPM, double objectDensity, bool hasHidden, bool hasFlashlight)
 		{
-			var lowVelocity = new VelocityRange(10, 150);
-			double lowVelocityDifficulty = 0.0;
+			double velocityDifficulty = 0.0;
 			
-			var highVelocity = new VelocityRange(240, 550);
-			double highVelocityDifficulty = 0.0;
+			// With hidden, notes at low velocities are hard to read
+			var lowVelocity = new VelocityRange(45, 210);
+			velocityDifficulty += (hasHidden) ? 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM, lowVelocity.Center, 10.0 / lowVelocity.Range) : 0.0;
 			
-			if (hasHidden)
-			{
-				lowVelocityDifficulty = 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM, lowVelocity.Center, 10.0 / lowVelocity.Range);
-				highVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(1.2 * effectiveBPM, highVelocity.Center, 5.0 / highVelocity.Range), 3.0);
-			}
-			else if (hasFlashlight)
-			{
-				highVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(2.0 * effectiveBPM, highVelocity.Center, 5.0 / highVelocity.Range), 2.5);
-			}
-			else
-			{
-				double highDensityPenalty = DifficultyCalculationUtils.Logistic(objectDensity, 1.0, 9.0);
-				
-				highVelocityDifficulty = Math.Pow(DifficultyCalculationUtils.Logistic(effectiveBPM, highVelocity.Center + (180.0 * highDensityPenalty), 5.0 / highVelocity.Range), (2.5 - highDensityPenalty));
-			}
+			// Without hidden, notes at high velocities are generally easier to read with higher object density than lower
+			// To reflect this, the high velocity range is shifted based on object density
+			double highDensityPenalty = (hasHidden) ? 0.0 : DifficultyCalculationUtils.Logistic(objectDensity, 1.0, 9.0);
 			
-			return lowVelocityDifficulty + highVelocityDifficulty;
+			var highVelocity = new VelocityRange(
+				250 + (150 * highDensityPenalty),
+				700 + (100 * highDensityPenalty)
+			);
+			
+			// Effective BPM is multiplied with hidden and flashlight to reflect notes being visible for less time
+			if (hasHidden) effectiveBPM *= 1.2;
+			if (hasFlashlight) effectiveBPM *= 2.0;
+			
+			velocityDifficulty += DifficultyCalculationUtils.Logistic(effectiveBPM, highVelocity.Center, 10.0 / highVelocity.Range);
+			
+			return velocityDifficulty;
 		}
 		
-		public static double EvaluateOtherDifficultyOf(double objectDensity, bool hasHidden)
+		public static double EvaluateDensityDifficultyOf(double objectDensity, bool hasHidden)
 		{
+			// With hidden, density makes notes much harder to read very quickly
 			if (hasHidden) return DifficultyCalculationUtils.Logistic(objectDensity, 3.0, 2.5);
 			
+			// Without hidden uhh this is pretty arbitrary change this up sometime
 			else return Math.Pow(DifficultyCalculationUtils.Logistic(objectDensity, 3.5, 1.5), 3.0);
 		}
 
@@ -81,7 +82,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 			var highVelocity = new VelocityRange(240, 550);
 			
 			double velocityDifficulty = EvaluateVelocityDifficultyOf(effectiveBPM, objectDensity, hasHidden, hasFlashlight);
-			double otherDifficulty = EvaluateOtherDifficultyOf(objectDensity, hasHidden);
+			double otherDifficulty = EvaluateDensityDifficultyOf(objectDensity, hasHidden);
 			
 			if (isVelocity)
 				return (1.0 - otherDifficulty) * velocityDifficulty;
