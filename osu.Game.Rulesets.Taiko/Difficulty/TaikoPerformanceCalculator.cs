@@ -108,7 +108,12 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 return 0;
 
 			double sr = attributes.StarRating;
-            double accuracyValue = Math.Pow(70 / estimatedUnstableRate.Value, (sr / 10.0) + 1) * Math.Pow(sr, 0.6) * 80.0;
+			double ur = estimatedUnstableRate.Value;
+			
+            double accuracyValue = 80.0 * Math.Pow(sr, 0.6) * Math.Pow(
+				70 / ur,
+				Math.Pow(sr, 0.2) + (Math.Max(0.0, 70 - ur) / 50.0)
+			);
 
             double lengthBonus = Math.Min(1.15, Math.Pow(totalHits / 1500.0, 0.3));
 
