@@ -111,8 +111,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 			double ur = estimatedUnstableRate.Value;
 			
             double accuracyValue = 80.0 * Math.Pow(sr, 0.6) * Math.Pow(
-				70 / ur,
-				Math.Pow(sr, 0.2) + (Math.Max(0.0, 70 - ur) / 50.0)
+				70.0 / ur,
+				Math.Pow(sr, 0.2) + Math.Max(0.0, (70.0 - ur) / 50.0)// + Math.Max(0.0, (ur - 100.0) / 150.0)
 			);
 
             double lengthBonus = Math.Min(1.15, Math.Pow(totalHits / 1500.0, 0.3));
