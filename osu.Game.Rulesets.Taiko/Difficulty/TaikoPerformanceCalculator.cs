@@ -74,7 +74,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 multiplier *= 0.950;
 
             double difficultyValue = computeDifficultyValue(score, taikoAttributes);
-            double accuracyValue = computeAccuracyValue(score, taikoAttributes, isConvert);
+            double accuracyValue = computeAccuracyValue(score, isConvert);
             double totalValue =
                 Math.Pow(
                     Math.Pow(difficultyValue, 1.1) +
@@ -122,7 +122,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             return difficultyValue * Math.Pow(DifficultyCalculationUtils.Erf(accScalingShift / (Math.Sqrt(2) * estimatedUnstableRate.Value)), accScalingExponent);
         }
 
-        private double computeAccuracyValue(ScoreInfo score, TaikoDifficultyAttributes attributes, bool isConvert)
+        private double computeAccuracyValue(ScoreInfo score, bool isConvert)
         {
             if (greatHitWindow <= 0 || estimatedUnstableRate == null)
                 return 0;
