@@ -73,13 +73,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (score.Mods.Any(m => m is ModEasy))
                 multiplier *= 0.950;
 
-            double difficultyValue = computeDifficultyValue(score, taikoAttributes);
-            double accuracyValue = computeAccuracyValue(score, isConvert);
-            double totalValue =
-                Math.Pow(
-                    Math.Pow(difficultyValue, 1.1) +
-                    Math.Pow(accuracyValue, 1.1), 1.0 / 1.1
-                ) * multiplier;
+            double difficultyValue = computeDifficultyValue(score, taikoAttributes) * multiplier;
+            double accuracyValue = computeAccuracyValue(score, isConvert) * multiplier;
+            double totalValue = difficultyValue + accuracyValue;
 
             return new TaikoPerformanceAttributes
             {
@@ -127,7 +123,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (greatHitWindow <= 0 || estimatedUnstableRate == null)
                 return 0;
 
-            double accuracyValue = Math.Pow(70 / estimatedUnstableRate.Value, 1.75) * 300.0;
+            double accuracyValue = Math.Pow(70 / estimatedUnstableRate.Value, 2) * 250.0;
 
             double lengthBonus = Math.Min(1.15, Math.Pow(totalHits / 1500.0, 0.3));
 
