@@ -123,13 +123,16 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (greatHitWindow <= 0 || estimatedUnstableRate == null)
                 return 0;
 
-            double accuracyValue = Math.Pow(70 / estimatedUnstableRate.Value, 2) * 250.0;
-
-            double lengthBonus = Math.Min(1.15, Math.Pow(totalHits / 1500.0, 0.3));
+            double accuracyValue = Math.Pow(70 / estimatedUnstableRate.Value, 2) * 225.0;
+			
+            // Bonus to accuracy based on total notes hit.
+            accuracyValue *= 1 + 0.08 * Math.Pow(totalHits / 1000.0, 0.5);
 
             // Slight HDFL Bonus for accuracy. A clamp is used to prevent against negative values.
+            double lengthBonusHDFL = Math.Min(1.15, Math.Pow(totalHits / 1500.0, 0.3));
+			
             if (score.Mods.Any(m => m is ModFlashlight<TaikoHitObject>) && score.Mods.Any(m => m is ModHidden) && !isConvert)
-                accuracyValue *= Math.Max(1.0, 1.05 * lengthBonus);
+                accuracyValue *= Math.Max(1.0, 1.05 * lengthBonusHDFL);
 
             return accuracyValue;
         }
