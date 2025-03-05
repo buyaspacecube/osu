@@ -74,7 +74,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 multiplier *= 0.950;
 
             double difficultyValue = computeDifficultyValue(score, taikoAttributes) * multiplier;
-            double accuracyValue = computeAccuracyValue(score, isConvert) * multiplier;
+            double accuracyValue = computeAccuracyValue(score, taikoAttributes, isConvert) * multiplier;
             double totalValue = difficultyValue + accuracyValue;
 
             return new TaikoPerformanceAttributes
@@ -118,12 +118,13 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             return difficultyValue * Math.Pow(DifficultyCalculationUtils.Erf(accScalingShift / (Math.Sqrt(2) * estimatedUnstableRate.Value)), accScalingExponent);
         }
 
-        private double computeAccuracyValue(ScoreInfo score, bool isConvert)
+        private double computeAccuracyValue(ScoreInfo score, TaikoDifficultyAttributes attributes, bool isConvert)
         {
             if (greatHitWindow <= 0 || estimatedUnstableRate == null)
                 return 0;
 
-            double accuracyValue = Math.Pow(70 / estimatedUnstableRate.Value, 2) * 225.0;
+            double ur = estimatedUnstableRate.Value;
+            double accuracyValue = 150.0 * Math.Pow(70.0 / ur, 1.65) * (1 + Math.Pow(attributes.StarRating, 1.6) * Math.Pow(1 / 100.0, ur / 300.0) / 20.0);
 			
             // Bonus to accuracy based on total notes hit.
             accuracyValue *= 1 + 0.08 * Math.Pow(totalHits / 1000.0, 0.5);
