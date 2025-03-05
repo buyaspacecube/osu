@@ -70,9 +70,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (score.Mods.Any(m => m is ModHidden) && !isConvert)
                 multiplier *= 1.075;
 
-            if (score.Mods.Any(m => m is ModEasy))
-                multiplier *= 0.950;
-
             double difficultyValue = computeDifficultyValue(score, taikoAttributes) * multiplier;
             double accuracyValue = computeAccuracyValue(score, taikoAttributes, isConvert) * multiplier;
             double totalValue = difficultyValue + accuracyValue;
