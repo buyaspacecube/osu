@@ -120,10 +120,12 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (greatHitWindow <= 0 || estimatedUnstableRate == null)
                 return 0;
 
-            double ur = estimatedUnstableRate.Value;
-            double accuracyValue = 150.0 * Math.Pow(70.0 / ur, 1.65) * (1 + Math.Pow(attributes.StarRating, 1.6) * Math.Pow(1 / 100.0, ur / 300.0) / 20.0);
-			
-            // Bonus to accuracy based on total notes hit.
+            double accuracyValue = 150.0 * Math.Pow(70.0 / estimatedUnstableRate.Value, 1.65);
+
+            // Bonus to the top end of accuracy bsaed on star rating.
+            accuracyValue *= 1 + 0.08 * Math.Pow(attributes.StarRating, 1.6) * Math.Pow(1 / 100.0, estimatedUnstableRate.Value / 200.0);
+
+            // Bonus to all accuracy based on total notes hit.
             accuracyValue *= 1 + 0.08 * Math.Pow(totalHits / 1000.0, 0.5);
 
             // Slight HDFL Bonus for accuracy. A clamp is used to prevent against negative values.
