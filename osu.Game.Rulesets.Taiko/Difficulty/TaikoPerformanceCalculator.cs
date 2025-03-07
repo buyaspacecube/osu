@@ -120,10 +120,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (greatHitWindow <= 0 || estimatedUnstableRate == null)
                 return 0;
 
-            double accuracyValue = 150.0 * Math.Pow(70.0 / estimatedUnstableRate.Value, 1.65);
+            double accuracyValue = 150.0 * Math.Pow(70.0 / estimatedUnstableRate.Value, 1.55);
 
             // Bonus to the top end of accuracy bsaed on star rating.
-            accuracyValue *= 1 + 0.08 * Math.Pow(attributes.StarRating, 1.6) * Math.Pow(1 / 100.0, estimatedUnstableRate.Value / 200.0);
+            accuracyValue *= 1 + 0.1 * Math.Pow(attributes.StarRating, 1.5) * Math.Pow(1 / 100.0, estimatedUnstableRate.Value / 200.0);
 
             // Bonus to all accuracy based on total notes hit.
             accuracyValue *= 1 + 0.08 * Math.Pow(totalHits / 1000.0, 0.5);
