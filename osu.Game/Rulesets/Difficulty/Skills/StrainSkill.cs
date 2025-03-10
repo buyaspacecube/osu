@@ -128,13 +128,23 @@ namespace osu.Game.Rulesets.Difficulty.Skills
             // These sections will not contribute to the difficulty.
             var peaks = GetCurrentStrainPeaks().Where(p => p > 0);
 
+            List<double> hardStrains = new List<double>();
+
             // Difficulty is the weighted sum of the highest strains from every section.
             // We're sorting from highest to lowest strain.
             foreach (double strain in peaks.OrderDescending())
             {
+                // We are taking only the spikes that fit in the 80% of the top weight spike in strains to achieve a good perception of the map's peak sections.
+                if (strain / peaks.Max() > 0.8)
+                    hardStrains.Add(strain);
+
                 difficulty += strain * weight;
                 weight *= DecayWeight;
             }
+
+            // We can calculate the consitency factor by doing average of spikes / most weight spikes.
+            // It result in a value that represent the consistency for all peaks in a range number from 0 to 1.
+            ConsistencyFactor = peaks.Average() / hardStrains.Average();
 
             return difficulty;
         }
