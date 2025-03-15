@@ -62,24 +62,13 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (totalSuccessfulHits > 0)
                 effectiveMissCount = Math.Max(1.0, 1000.0 / totalSuccessfulHits) * countMiss;
 
-            // Converts are detected and omitted from mod-specific bonuses due to the scope of current difficulty calculation.
-            bool isConvert = score.BeatmapInfo!.Ruleset.OnlineID != 1;
-
-            double multiplier = 1.13;
-
-            if (score.Mods.Any(m => m is ModHidden) && !isConvert)
-                multiplier *= 1.075;
-
-            if (score.Mods.Any(m => m is ModEasy))
-                multiplier *= 0.950;
-
             double difficultyValue = computeDifficultyValue(score, taikoAttributes);
-            double accuracyValue = computeAccuracyValue(score, taikoAttributes, isConvert);
+            double accuracyValue = computeAccuracyValue(score, taikoAttributes);
             double totalValue =
                 Math.Pow(
                     Math.Pow(difficultyValue, 1.1) +
                     Math.Pow(accuracyValue, 1.1), 1.0 / 1.1
-                ) * multiplier;
+                ) * 1.13;
 
             return new TaikoPerformanceAttributes
             {
@@ -103,15 +92,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
             difficultyValue *= Math.Pow(0.986, effectiveMissCount);
 
-            if (score.Mods.Any(m => m is ModEasy))
-                difficultyValue *= 0.90;
-
-            if (score.Mods.Any(m => m is ModHidden))
-                difficultyValue *= 1.025;
-
-            if (score.Mods.Any(m => m is ModFlashlight<TaikoHitObject>))
-                difficultyValue *= Math.Max(1, 1.050 - Math.Min(attributes.MonoStaminaFactor / 50, 1) * lengthBonus);
-
             if (estimatedUnstableRate == null)
                 return 0;
 
@@ -122,20 +102,12 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             return difficultyValue * Math.Pow(DifficultyCalculationUtils.Erf(accScalingShift / (Math.Sqrt(2) * estimatedUnstableRate.Value)), accScalingExponent);
         }
 
-        private double computeAccuracyValue(ScoreInfo score, TaikoDifficultyAttributes attributes, bool isConvert)
+        private double computeAccuracyValue(ScoreInfo score, TaikoDifficultyAttributes attributes)
         {
             if (greatHitWindow <= 0 || estimatedUnstableRate == null)
                 return 0;
 
-            double accuracyValue = Math.Pow(70 / estimatedUnstableRate.Value, 1.1) * Math.Pow(attributes.StarRating, 0.4) * 100.0;
-
-            double lengthBonus = Math.Min(1.15, Math.Pow(totalHits / 1500.0, 0.3));
-
-            // Slight HDFL Bonus for accuracy. A clamp is used to prevent against negative values.
-            if (score.Mods.Any(m => m is ModFlashlight<TaikoHitObject>) && score.Mods.Any(m => m is ModHidden) && !isConvert)
-                accuracyValue *= Math.Max(1.0, 1.05 * lengthBonus);
-
-            return accuracyValue;
+            return Math.Pow(70 / estimatedUnstableRate.Value, 1.1) * Math.Pow(attributes.StarRating, 0.4) * 100.0;
         }
 
         /// <summary>
