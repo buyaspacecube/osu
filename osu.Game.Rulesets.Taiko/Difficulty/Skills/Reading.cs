@@ -1,12 +1,14 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Linq;
 using osu.Game.Rulesets.Difficulty.Preprocessing;
 using osu.Game.Rulesets.Difficulty.Skills;
 using osu.Game.Rulesets.Difficulty.Utils;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Taiko.Difficulty.Evaluators;
 using osu.Game.Rulesets.Taiko.Difficulty.Preprocessing;
+using osu.Game.Rulesets.Taiko.Mods;
 using osu.Game.Rulesets.Taiko.Objects;
 
 namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
@@ -21,9 +23,14 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 
         private double currentStrain;
 
+        private bool hasHidden;
+        private bool hasFlashlight;
+
         public Reading(Mod[] mods)
             : base(mods)
         {
+            hasHidden = mods.Any(m => m is TaikoModHidden);
+            hasFlashlight = mods.Any(m => m is TaikoModFlashlight);
         }
 
         protected override double StrainValueOf(DifficultyHitObject current)
@@ -40,7 +47,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
             currentStrain *= DifficultyCalculationUtils.Logistic(index, 4, -1 / 25.0, 0.5) + 0.5;
 
             currentStrain *= StrainDecayBase;
-            currentStrain += ReadingEvaluator.EvaluateDifficultyOf(taikoObject) * SkillMultiplier;
+            currentStrain += ReadingEvaluator.EvaluateDifficultyOf(taikoObject, hasHidden, hasFlashlight) * SkillMultiplier;
 
             return currentStrain;
         }
