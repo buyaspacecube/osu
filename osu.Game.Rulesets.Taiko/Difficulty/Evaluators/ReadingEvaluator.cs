@@ -59,13 +59,13 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             var lowVelocity = new VelocityRange(45, 210);
             velocityDifficulty += (hasHidden) ? 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM, lowVelocity.Center, 10.0 / lowVelocity.Range) : 0.0;
 
-            // Without hidden, notes at high velocities are generally easier to read with higher object density than lower
+            // Without hidden, notes at high velocities are generally harder to read with lower object density (think HR streams vs DT)
             // To reflect this, the high velocity range is shifted based on object density
-            double highDensityPenalty = (hasHidden) ? 0.0 : DifficultyCalculationUtils.Logistic(objectDensity, 1.0, 9.0);
+            double lowDensityBonus = (hasHidden) ? 1.0 : DifficultyCalculationUtils.Logistic(objectDensity, 1.0, -9.0);
 
             var highVelocity = new VelocityRange(
-                250 + (150 * highDensityPenalty),
-                700 + (100 * highDensityPenalty)
+                400 - (150 * lowDensityBonus),
+                800 - (100 * lowDensityBonus)
             );
 
             // Effective BPM is multiplied with hidden and flashlight to reflect notes being visible for less time
