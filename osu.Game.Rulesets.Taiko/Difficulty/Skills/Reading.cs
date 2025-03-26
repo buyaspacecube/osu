@@ -25,12 +25,14 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 
         private bool hasHidden;
         private bool hasFlashlight;
+        private bool hasClassic;
 
         public Reading(Mod[] mods)
             : base(mods)
         {
             hasHidden = mods.Any(m => m is TaikoModHidden);
             hasFlashlight = mods.Any(m => m is TaikoModFlashlight);
+            hasClassic = mods.Any(m => m is TaikoModClassic);
         }
 
         protected override double StrainValueOf(DifficultyHitObject current)
@@ -47,7 +49,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
             currentStrain *= DifficultyCalculationUtils.Logistic(index, 4, -1 / 25.0, 0.5) + 0.5;
 
             currentStrain *= StrainDecayBase;
-            currentStrain += ReadingEvaluator.EvaluateDifficultyOf(taikoObject, hasHidden, hasFlashlight) * SkillMultiplier;
+            currentStrain += ReadingEvaluator.EvaluateDifficultyOf(taikoObject, hasHidden, hasFlashlight, hasClassic) * SkillMultiplier;
 
             return currentStrain;
         }

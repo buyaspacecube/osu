@@ -33,7 +33,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         /// <param name="hasHidden">Whether the hidden mod is enabled.</param>
         /// <param name="hasFlashlight">Whether the flashlight mod is enabled.</param>
         /// <returns>The reading difficulty value for the given hit object.</returns>
-        public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject, bool hasHidden, bool hasFlashlight)
+        public static double EvaluateDifficultyOf(TaikoDifficultyHitObject noteObject, bool hasHidden, bool hasFlashlight, bool hasClassic)
         {
             // With HDFL, all note objects are invisible and give the maximum reading difficulty
             if (hasHidden && hasFlashlight) return 1.0;
@@ -45,16 +45,16 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             double expectedDeltaTime = 21000.0 / effectiveBPM;
             double objectDensity = expectedDeltaTime / Math.Max(1.0, noteObject.DeltaTime);
 
-            double velocityDifficulty = EvaluateVelocityDifficultyOf(effectiveBPM, objectDensity, hasHidden, hasFlashlight);
+            double velocityDifficulty = EvaluateVelocityDifficultyOf(effectiveBPM, objectDensity, hasHidden, hasFlashlight, hasClassic);
             double densityDifficulty = EvaluateDensityDifficultyOf(objectDensity, hasHidden);
 
             return (1 - densityDifficulty) * velocityDifficulty + densityDifficulty;
         }
 
-        public static double EvaluateVelocityDifficultyOf(double effectiveBPM, double objectDensity, bool hasHidden, bool hasFlashlight)
+        public static double EvaluateVelocityDifficultyOf(double effectiveBPM, double objectDensity, bool hasHidden, bool hasFlashlight, bool hasClassic)
         {
             // Effective BPM is multiplied with hidden and flashlight to reflect notes being visible for less time
-            if (hasHidden) effectiveBPM *= 1.4;
+            if (hasHidden) effectiveBPM *= (hasClassic) ? 1.4 : 1.1;
             if (hasFlashlight) effectiveBPM *= 3.0;
 
             double velocityDifficulty = 0.0;
