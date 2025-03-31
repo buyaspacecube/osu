@@ -50,7 +50,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             return new Skill[]
             {
                 new Rhythm(mods, hitWindows.WindowFor(HitResult.Great) / clockRate),
-                new Reading(mods),
+                new Reading(mods, beatmap.Difficulty.CircleSize, beatmap.Difficulty.ApproachRate),
                 new Colour(mods),
                 new Stamina(mods, false, isConvert),
                 new Stamina(mods, true, isConvert)
