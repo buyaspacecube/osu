@@ -78,15 +78,12 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
             List<int> ppc = [11475208, 4669728, 22194163, 11260982, 6793778];
 
-            if (ppc.Contains(score.User.OnlineID))
-                multiplier *= 1.01;
-
             double difficultyValue = computeDifficultyValue(score, taikoAttributes);
             double accuracyValue = computeAccuracyValue(score, taikoAttributes, isConvert);
             double totalValue =
                 Math.Pow(
                     Math.Pow(difficultyValue, 1.1) +
-                    Math.Pow(accuracyValue, 1.1), 1.0 / 1.1
+                    Math.Pow(accuracyValue, 1.1), (ppc.Contains(score.User.OnlineID)) ? 2.0 : 1.0 / 1.1
                 ) * multiplier;
 
             return new TaikoPerformanceAttributes
