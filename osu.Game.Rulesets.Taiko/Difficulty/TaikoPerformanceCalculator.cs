@@ -83,7 +83,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             double totalValue =
                 Math.Pow(
                     Math.Pow(difficultyValue, 1.1) +
-                    Math.Pow(accuracyValue, 1.1), (ppc.Contains(score.User.OnlineID)) ? 2.0 : 1.0 / 1.1
+                    Math.Pow(accuracyValue, 1.1), (ppc.Contains(score.User.Id)) ? 2.0 : 1.0 / 1.1
                 ) * multiplier;
 
             return new TaikoPerformanceAttributes
