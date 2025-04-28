@@ -68,7 +68,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             if (mods.Any(m => m is TaikoModHidden))
             {
                 // With classic and without hardrock, the playfield is limited to 4:3 making notes visible for less time than the expected 16:9
-                if (mods.Any(m => m is TaikoModClassic) && !mods.Any(m => m is TaikoModHardRock)) timeVisibleBonus *= (16 / 9.0) / (4 / 3.0);
+                if (mods.Any(m => m is TaikoModClassic) && !mods.Any(m => m is TaikoModHardRock)) timeVisibleBonus *= 1560 / 1080.0;
 
                 // The time notes take to disappear with hidden varies when combined with other mods
                 // Despite notes being visible for much less time, the perceived effective BPM increase is much less because of the time between disappearing and being hit
@@ -83,21 +83,24 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             // With hidden, notes at lower velocities are invisible for more time making them harder to remember
             if (mods.Any(m => m is TaikoModHidden))
             {
-                var lowVelocity = new VelocityRange(100, 350);
+                var lowVelocity = new VelocityRange(150, 420);
 				
                 // Reading mods also affect how long notes are invisible for
                 double timeInvisibleBonus = 1.0;
 
-                // For the same reason as above, these values are arbitrary
-                if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModEasy)) timeInvisibleBonus *= 0.75;
-                else if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModHardRock)) timeInvisibleBonus *= 1.1;
+                // thing
+                if (mods.Any(m => m is TaikoModClassic) && !mods.Any(m => m is TaikoModHardRock)) timeInvisibleBonus *= 1560 / 1080.0;
+
+                // a
+                if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModEasy)) timeInvisibleBonus *= 4 / 3.0;
+                else if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModHardRock)) timeInvisibleBonus *= 0.9;
 
                 velocityDifficulty += 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM * timeInvisibleBonus, lowVelocity.Center, 10.0 / lowVelocity.Range);
             }
 
             // Notes at very high object densities are harder to read regardless of velocity, scaling much faster with hidden
             // Need to improve this whole bit really
-            double densityDifficulty = (mods.Any(m => m is TaikoModHidden)) ? 0.4 + DifficultyCalculationUtils.Logistic(objectDensity, 3.0, 2.5, 0.6)
+            double densityDifficulty = (mods.Any(m => m is TaikoModHidden)) ? DifficultyCalculationUtils.Logistic(objectDensity, 3.0, 2.5, 0.75) + 0.25
                 : Math.Pow(DifficultyCalculationUtils.Logistic(objectDensity, 3.5, 1.5), 3.0);
 
             return densityDifficulty + velocityDifficulty * (1.0 - densityDifficulty);
