@@ -52,7 +52,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             // Notes at higher velocities are visible for less time making them harder to read
             // High velocity notes are generally even harder to read with lower object density (think HR streams vs DT)
             // To reflect this, the high velocity range is shifted based on object density
-            double lowDensityBonus = 1.0 - DifficultyCalculationUtils.Logistic(objectDensity, 0.68, 20);
+            // PLEASE IMPROVE THIS COMMENT
+            double lowDensityBonus = (mods.Any(m => m is TaikoModHidden)) ? 0.0 : 1.0 - DifficultyCalculationUtils.Logistic(objectDensity, 0.68, 20);
 
             var highVelocity = new VelocityRange(
                 420 - (100 * lowDensityBonus), 
@@ -69,7 +70,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
                 // With classic and without hardrock, the playfield is limited to 4:3 making notes visible for less time than the expected 16:9
                 if (mods.Any(m => m is TaikoModClassic) && !mods.Any(m => m is TaikoModHardRock)) timeVisibleBonus *= (16 / 9.0) / (4 / 3.0);
 
-                // Notes disappearing with hidden makes them visible for less time, with how soon they disappear varying with other mods
+                // The time notes take to disappear with hidden varies when combined with other mods
                 // Despite notes being visible for much less time, the perceived effective BPM increase is much less because of the time between disappearing and being hit
                 // Because of this, arbitrary values are used for each mod combo
                 if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModEasy)) timeVisibleBonus *= 1.05;
@@ -95,7 +96,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             }
 
             // Notes at very high object densities are harder to read regardless of velocity, scaling much faster with hidden
-            double densityDifficulty = (mods.Any(m => m is TaikoModHidden)) ? DifficultyCalculationUtils.Logistic(objectDensity, 3.0, 2.5) 
+            // Need to improve this whole bit really
+            double densityDifficulty = (mods.Any(m => m is TaikoModHidden)) ? 0.4 + DifficultyCalculationUtils.Logistic(objectDensity, 3.0, 2.5, 0.6)
                 : Math.Pow(DifficultyCalculationUtils.Logistic(objectDensity, 3.5, 1.5), 3.0);
 
             return densityDifficulty + velocityDifficulty * (1.0 - densityDifficulty);
