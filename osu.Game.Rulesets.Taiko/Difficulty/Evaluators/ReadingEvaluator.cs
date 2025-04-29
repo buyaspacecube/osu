@@ -83,13 +83,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             // With hidden, notes at lower velocities are invisible for more time making them harder to remember
             if (mods.Any(m => m is TaikoModHidden))
             {
-                var lowVelocity = new VelocityRange(150, 420);
+                var lowVelocity = new VelocityRange(150, 360);
 				
                 // Reading mods also affect how long notes are invisible for
                 double timeInvisibleBonus = 1.0;
-
-                // thing
-                if (mods.Any(m => m is TaikoModClassic) && !mods.Any(m => m is TaikoModHardRock)) timeInvisibleBonus *= 1560 / 1080.0;
 
                 // a
                 if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModEasy)) timeInvisibleBonus *= 4 / 3.0;
