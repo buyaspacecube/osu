@@ -53,7 +53,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             // High velocity notes are generally even harder to read with lower object density (think HR streams vs DT)
             // To reflect this, the high velocity range is shifted based on object density
             // PLEASE IMPROVE THIS COMMENT
-            double lowDensityBonus = (mods.Any(m => m is TaikoModHidden)) ? 0.0 : 1.0 - DifficultyCalculationUtils.Logistic(objectDensity, 0.68, 20);
+            double lowDensityBonus = 1.0 - DifficultyCalculationUtils.Logistic(objectDensity, 0.68, 20);
 
             var highVelocity = new VelocityRange(
                 420 - (100 * lowDensityBonus), 
