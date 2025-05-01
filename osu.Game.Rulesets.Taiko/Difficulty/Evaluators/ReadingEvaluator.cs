@@ -95,6 +95,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
                 velocityDifficulty += 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM * timeInvisibleBonus, lowVelocity.Center, 10.0 / lowVelocity.Range);
             }
 
+            // With hidden, all notes award a base reading difficulty
+            if (mods.Any(m => m is TaikoModHidden)) velocityDifficulty = 0.25 + 0.75 * velocityDifficulty;
+
             var previousNoteObject = (TaikoDifficultyHitObject)noteObject.Previous(0);
 
             if (previousNoteObject != null)
