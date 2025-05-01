@@ -26,7 +26,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             }
         }
 
-        // All curves can be found here https://www.desmos.com/calculator/jlit0ppur6
+        // desmos link goes here once i make it presentable
 
         /// <summary>
         /// Calculates the influence of slider velocities on hitobject difficulty.
@@ -93,6 +93,19 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
                 else if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModHardRock)) timeInvisibleBonus *= 0.9;
 
                 velocityDifficulty += 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM * timeInvisibleBonus, lowVelocity.Center, 10.0 / lowVelocity.Range);
+            }
+
+            var previousNoteObject = (TaikoDifficultyHitObject)noteObject.Previous(0);
+
+            if (previousNoteObject != null)
+            {
+                // Notes with harsher velocity changes from the previous note are also harder to read, measured with the change in effective BPM per millisecond
+                double acceleration = (effectiveBPM - previousNoteObject.EffectiveBPM) / Math.Max(1.0, noteObject.DeltaTime);
+
+                double accelerationDifficulty = Math.Max(0, DifficultyCalculationUtils.Logistic(acceleration, 0, -3) - 0.5) + Math.Max(0, 2.0 * DifficultyCalculationUtils.Logistic(acceleration, 0, 8) - 1.0);
+
+                // This returns a number that represents both velocity and acceleration difficulty without exceeding 1.0
+                return velocityDifficulty + accelerationDifficulty * (1 - velocityDifficulty);
             }
 
             return velocityDifficulty;
