@@ -95,12 +95,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
                 velocityDifficulty += 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM * timeInvisibleBonus, lowVelocity.Center, 10.0 / lowVelocity.Range);
             }
 
-            // Notes at very high object densities are harder to read regardless of velocity, scaling much faster with hidden
-            // Need to improve this whole bit really
-            double densityDifficulty = (mods.Any(m => m is TaikoModHidden)) ? DifficultyCalculationUtils.Logistic(objectDensity, 3.0, 2.5, 0.75) + 0.25
-                : Math.Pow(DifficultyCalculationUtils.Logistic(objectDensity, 3.5, 1.5), 3.0);
-
-            return densityDifficulty + velocityDifficulty * (1.0 - densityDifficulty);
+            return velocityDifficulty;
         }
     }
 }
