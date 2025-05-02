@@ -43,21 +43,23 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             // Apply a cap to prevent outlier values on maps that exceed the editor's parameters
             double effectiveBPM = Math.Max(1.0, noteObject.EffectiveBPM);
 
-            // Expected DeltaTime is the DeltaTime this note would need to be spaced equally to a base slider velocity 1/4 note
-            double expectedDeltaTime = 21000.0 / effectiveBPM;
-            double objectDensity = expectedDeltaTime / Math.Max(1.0, noteObject.DeltaTime);
-
             double velocityDifficulty = 0.0;
 
             // Notes at higher velocities are visible for less time making them harder to read
             // High velocity notes are generally even harder to read with lower object density (think HR streams vs DT)
             // To reflect this, the high velocity range is shifted based on object density
-            // PLEASE IMPROVE THIS COMMENT
-            double lowDensityBonus = 1.0 - DifficultyCalculationUtils.Logistic(objectDensity, 0.68, 20);
+            // yeah worry about comments later lol
+
+            var previousNoteObject = (TaikoDifficultyHitObject)noteObject.Previous(0);
+
+            double lowDensityBonus = DifficultyCalculationUtils.Smoothstep(
+                (previousNoteObject != null) ? Math.Max(ObjectDensityOf(previousNoteObject), ObjectDensityOf(noteObject)) : ObjectDensityOf(noteObject),
+                0.9, 0.35
+            );
 
             var highVelocity = new VelocityRange(
-                420 - (100 * lowDensityBonus), 
-                1000 - (250 * lowDensityBonus)
+                420 - (140 * lowDensityBonus), 
+                1000 - (320 * lowDensityBonus)
             );
 
             // Reading mods also affect how long notes are visible for
@@ -98,8 +100,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             // With hidden, all notes award a base reading difficulty
             if (mods.Any(m => m is TaikoModHidden)) velocityDifficulty = 0.25 + 0.75 * velocityDifficulty;
 
-            var previousNoteObject = (TaikoDifficultyHitObject)noteObject.Previous(0);
-
             if (previousNoteObject != null)
             {
                 // Notes with harsher velocity changes from the previous note are also harder to read, measured with the change in effective BPM per millisecond
@@ -112,6 +112,15 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             }
 
             return velocityDifficulty;
+        }
+
+        // Object density is a measure of how close a note object appears to the one before it
+        public static double ObjectDensityOf(TaikoDifficultyHitObject noteObject)
+        {
+            // Expected DeltaTime is the DeltaTime this note would need to be spaced equally to a base slider velocity 1/4 note
+            double expectedDeltaTime = 21000.0 / Math.Max(1.0, noteObject.EffectiveBPM);
+
+            return expectedDeltaTime / Math.Max(1.0, noteObject.DeltaTime);
         }
     }
 }
