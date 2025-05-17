@@ -66,6 +66,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             double timeVisibleBonus = 1.0;
 
             if (mods.Any(m => m is TaikoModFlashlight)) timeVisibleBonus *= 3.33;
+			
+			// im on the worst setup ever rn lol will explain number and write proper comment sometime
+			if (mods.Any(m => m is TaikoModHardRock) && mods.Any(m => m is TaikoModClassic)) timeVisibleBonus *= 0.845;
 
             if (mods.Any(m => m is TaikoModHidden))
             {
