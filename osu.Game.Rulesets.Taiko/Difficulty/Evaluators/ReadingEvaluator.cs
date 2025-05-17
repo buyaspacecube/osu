@@ -94,7 +94,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 
                 // a
                 if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModEasy)) timeInvisibleBonus *= 4 / 3.0;
-                else if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModHardRock)) timeInvisibleBonus *= 0.9;
 
                 velocityDifficulty += 1.0 - DifficultyCalculationUtils.Logistic(effectiveBPM * timeInvisibleBonus, lowVelocity.Center, 10.0 / lowVelocity.Range);
             }
