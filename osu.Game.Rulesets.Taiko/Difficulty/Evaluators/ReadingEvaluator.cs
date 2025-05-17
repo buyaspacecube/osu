@@ -79,7 +79,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
                 // Despite notes being visible for much less time, the perceived effective BPM increase is much less because of the time between disappearing and being hit
                 // Because of this, arbitrary values are used for each mod combo
                 if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModEasy)) timeVisibleBonus *= 1.05;
-                else if (mods.Any(m => m is TaikoModClassic) && mods.Any(m => m is TaikoModHardRock)) timeVisibleBonus *= 1.3; // Explain why this later
                 else timeVisibleBonus *= 1.2;
             }
 
