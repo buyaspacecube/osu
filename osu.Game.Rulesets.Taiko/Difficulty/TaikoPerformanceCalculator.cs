@@ -91,7 +91,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
         private double computeDifficultyValue(ScoreInfo score, TaikoDifficultyAttributes attributes)
         {
-            double baseDifficulty = 5 * Math.Max(1.0, attributes.StarRating / 0.110) - 4.0;
+            // Gradually remove rhythm difficulty from star rating as estimated unstable rate increases, keeping a minimum of 0.8 rhythm difficulty
+            double adjustedStarRating = attributes.StarRating - Math.Max(attributes.RhythmDifficulty - 0.8, 0) * DifficultyCalculationUtils.Logistic(estimatedUnstableRate.Value, 200, 1 / 20.0);
+
+            double baseDifficulty = 5 * Math.Max(1.0, adjustedStarRating / 0.110) - 4.0;
             double difficultyValue = Math.Min(Math.Pow(baseDifficulty, 3) / 69052.51, Math.Pow(baseDifficulty, 2.25) / 1250.0);
 
             difficultyValue *= 1 + 0.10 * Math.Max(0, attributes.StarRating - 10);
