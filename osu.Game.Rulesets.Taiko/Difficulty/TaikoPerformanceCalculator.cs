@@ -71,7 +71,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (score.Mods.Any(m => m is ModEasy))
                 multiplier *= 0.950;
 
-            double difficultyValue = computeDifficultyValue(score, taikoAttributes);
+            double difficultyValue = computeDifficultyValue(score, taikoAttributes, out double mechanicalValue, out double rhythmValue, out double readingValue);
             double accuracyValue = computeAccuracyValue(score, taikoAttributes, isConvert);
             double totalValue =
                 Math.Pow(
@@ -82,6 +82,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             return new TaikoPerformanceAttributes
             {
                 Difficulty = difficultyValue,
+                MechanicalDifficulty = mechanicalValue,
+                RhythmDifficulty = rhythmValue,
+                ReadingDifficulty = readingValue,
                 Accuracy = accuracyValue,
                 EffectiveMissCount = effectiveMissCount,
                 EstimatedUnstableRate = estimatedUnstableRate,
@@ -89,7 +92,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             };
         }
 
-        private double computeDifficultyValue(ScoreInfo score, TaikoDifficultyAttributes attributes)
+        private double computeDifficultyValue(ScoreInfo score, TaikoDifficultyAttributes attributes, out double mechanicalValue, out double rhythmValue, out double readingValue)
         {
             double baseDifficulty = 5 * Math.Max(1.0, attributes.StarRating / 0.110) - 4.0;
             double difficultyValue = Math.Min(Math.Pow(baseDifficulty, 3) / 69052.51, Math.Pow(baseDifficulty, 2.25) / 1250.0);
@@ -111,13 +114,19 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 difficultyValue *= Math.Max(1, 1.050 - Math.Min(attributes.MonoStaminaFactor / 50, 1) * lengthBonus);
 
             if (estimatedUnstableRate == null)
-                return 0;
+                difficultyValue = 0;
 
             // Scale accuracy more harshly on nearly-completely mono (single coloured) speed maps.
             double accScalingExponent = 2 + attributes.MonoStaminaFactor;
             double accScalingShift = 500 - 100 * (attributes.MonoStaminaFactor * 3);
 
-            return difficultyValue * Math.Pow(DifficultyCalculationUtils.Erf(accScalingShift / (Math.Sqrt(2) * estimatedUnstableRate.Value)), accScalingExponent);
+            difficultyValue *= Math.Pow(DifficultyCalculationUtils.Erf(accScalingShift / (Math.Sqrt(2) * estimatedUnstableRate.Value)), accScalingExponent);
+
+            mechanicalValue = difficultyValue * (attributes.StaminaDifficulty + attributes.ColourDifficulty) / attributes.StarRating;
+            rhythmValue = difficultyValue * attributes.RhythmDifficulty / attributes.StarRating;
+            readingValue = difficultyValue * attributes.ReadingDifficulty / attributes.StarRating;
+
+            return difficultyValue;
         }
 
         private double computeAccuracyValue(ScoreInfo score, TaikoDifficultyAttributes attributes, bool isConvert)

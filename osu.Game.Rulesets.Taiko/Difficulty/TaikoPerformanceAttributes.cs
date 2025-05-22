@@ -12,6 +12,15 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         [JsonProperty("difficulty")]
         public double Difficulty { get; set; }
 
+        [JsonProperty("mechanical_difficulty")]
+        public double MechanicalDifficulty { get; set; }
+
+        [JsonProperty("rhythm_difficulty")]
+        public double RhythmDifficulty { get; set; }
+
+        [JsonProperty("reading_difficulty")]
+        public double ReadingDifficulty { get; set; }
+
         [JsonProperty("accuracy")]
         public double Accuracy { get; set; }
 
