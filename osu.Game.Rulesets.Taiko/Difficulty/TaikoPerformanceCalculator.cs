@@ -54,7 +54,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
             greatHitWindow = hitWindows.WindowFor(HitResult.Great) / clockRate;
 
-            estimatedUnstableRate = computeDeviationUpperBound() * 10;
+            estimatedUnstableRate = computeDeviationUpperBound(totalHits) * 10;
 
             // The effectiveMissCount is calculated by gaining a ratio for totalSuccessfulHits and increasing the miss penalty for shorter object counts lower than 1000.
             if (totalSuccessfulHits > 0)
@@ -91,6 +91,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
         private double computeDifficultyValue(ScoreInfo score, TaikoDifficultyAttributes attributes)
         {
+            if (estimatedUnstableRate == null)
+                return 0;
+
             // Gradually remove rhythm difficulty from star rating as estimated unstable rate increases
             // A minimum of 1.25 rhythm difficulty is kept so that normal maps are less affected
             double adjustedStarRating = attributes.StarRating - Math.Max(attributes.RhythmDifficulty - 1.25, 0) * DifficultyCalculationUtils.Logistic(estimatedUnstableRate.Value, 175, 1 / 15.0);
@@ -114,9 +117,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (score.Mods.Any(m => m is ModFlashlight<TaikoHitObject>))
                 difficultyValue *= Math.Max(1, 1.050 - Math.Min(attributes.MonoStaminaFactor / 50, 1) * lengthBonus);
 
-            if (estimatedUnstableRate == null)
-                return 0;
-
             // Scale accuracy more harshly on nearly-completely mono (single coloured) speed maps.
             double accScalingExponent = 2 + attributes.MonoStaminaFactor;
             double accScalingShift = 500 - 100 * (attributes.MonoStaminaFactor * 3);
@@ -126,10 +126,13 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
         private double computeAccuracyValue(ScoreInfo score, TaikoDifficultyAttributes attributes, bool isConvert)
         {
-            if (greatHitWindow <= 0 || estimatedUnstableRate == null)
+            // Effective unstable rate estimates unstable rate on only the "important" notes of a map, based on the consistency factor.
+            double? effectiveUnstableRate = computeDeviationUpperBound(DifficultyCalculationUtils.Logistic(attributes.ConsistencyFactor, 0.5, 12) * totalHits) * 10;
+
+            if (greatHitWindow <= 0 || effectiveUnstableRate == null)
                 return 0;
 
-            double accuracyValue = Math.Pow(70 / estimatedUnstableRate.Value, 1.1) * Math.Pow(attributes.StarRating, 0.4) * 100.0;
+            double accuracyValue = Math.Pow(70 / effectiveUnstableRate.Value, 1.1) * Math.Pow(attributes.StarRating, 0.4) * 100.0;
 
             double lengthBonus = Math.Min(1.15, Math.Pow(totalHits / 1500.0, 0.3));
 
@@ -145,17 +148,17 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         /// and the hit judgements, assuming the player's mean hit error is 0. The estimation is consistent in that
         /// two SS scores on the same map with the same settings will always return the same deviation.
         /// </summary>
-        private double? computeDeviationUpperBound()
+        private double? computeDeviationUpperBound(double hits)
         {
             if (countGreat == 0 || greatHitWindow <= 0)
                 return null;
 
             const double z = 2.32634787404; // 99% critical value for the normal distribution (one-tailed).
 
-            double n = totalHits;
+            double n = hits;
 
             // Proportion of greats hit.
-            double p = countGreat / n;
+            double p = Math.Max(1 - (totalImperfectHits / n), 0);
 
             // We can be 99% confident that p is at least this value.
             double pLowerBound = (n * p + z * z / 2) / (n + z * z) - z / (n + z * z) * Math.Sqrt(n * p * (1 - p) + z * z / 4);
@@ -167,5 +170,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         private int totalHits => countGreat + countOk + countMeh + countMiss;
 
         private int totalSuccessfulHits => countGreat + countOk + countMeh;
+
+        private int totalImperfectHits => countOk + countMeh + countMiss;
     }
 }
