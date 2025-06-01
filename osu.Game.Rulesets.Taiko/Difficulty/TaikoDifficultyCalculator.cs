@@ -163,7 +163,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         /// </remarks>
         private double combinedDifficultyValue(Rhythm rhythm, Reading reading, Colour colour, Stamina stamina, bool isRelax, bool isConvert, out double consistencyFactor)
         {
-            List<double> peaks = new List<double>();
+            List<VariableLengthStrainSkill.StrainPeak> peaks = new List<VariableLengthStrainSkill.StrainPeak>();
 
             var rhythmPeaks = rhythm.GetCurrentStrainPeaks().ToList();
             var readingPeaks = reading.GetCurrentStrainPeaks().ToList();
@@ -172,10 +172,12 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
             for (int i = 0; i < colourPeaks.Count; i++)
             {
-                double rhythmPeak = rhythmPeaks[i] * rhythm_skill_multiplier * patternMultiplier;
-                double readingPeak = readingPeaks[i] * reading_skill_multiplier;
-                double colourPeak = isRelax ? 0 : colourPeaks[i] * colour_skill_multiplier; // There is no colour difficulty in relax.
-                double staminaPeak = staminaPeaks[i] * stamina_skill_multiplier * strainLengthBonus;
+                double sectionLength = colourPeaks[i].SectionLength;
+
+                double rhythmPeak = rhythmPeaks[i].Value * rhythm_skill_multiplier * patternMultiplier;
+                double readingPeak = readingPeaks[i].Value * reading_skill_multiplier;
+                double colourPeak = isRelax ? 0 : colourPeaks[i].Value * colour_skill_multiplier; // There is no colour difficulty in relax.
+                double staminaPeak = staminaPeaks[i].Value * stamina_skill_multiplier * strainLengthBonus;
                 staminaPeak /= isConvert || isRelax ? 1.5 : 1.0; // Available finger count is increased by 150%, thus we adjust accordingly.
 
                 double peak = DifficultyCalculationUtils.Norm(2, DifficultyCalculationUtils.Norm(1.5, colourPeak, staminaPeak), rhythmPeak, readingPeak);
@@ -183,19 +185,25 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
                 // Sections with 0 strain are excluded to avoid worst-case time complexity of the following sort (e.g. /b/2351871).
                 // These sections will not contribute to the difficulty.
                 if (peak > 0)
-                    peaks.Add(peak);
+                    peaks.Add(new VariableLengthStrainSkill.StrainPeak(peak, sectionLength));
             }
 
             double difficulty = 0;
             double weight = 1;
 
-            foreach (double strain in peaks.OrderDescending())
+            peaks = peaks.OrderByDescending(p => p.Value).ToList();
+            double time = 0;
+
+            // Difficulty is a continuous weighted sum of the sorted strains
+            // 9.49122 = Integrate[Power[0.9,x],{x,0,1}]
+            for (int i = 0; i < peaks.Count; i++)
             {
-                difficulty += strain * weight;
-                weight *= 0.9;
+                weight = Math.Pow(0.9, time) * (9.49122 - 9.49122 * Math.Pow(0.9, peaks[i].SectionLength / 400.0)); // f(a,b)=Integrate[Power[0.9,x],{x,a,a+b}]
+                difficulty += peaks[i].Value * weight;
+                time += peaks[i].SectionLength / 400.0;
             }
 
-            consistencyFactor = calculateConsistencyFactor(peaks);
+            consistencyFactor = calculateConsistencyFactor(peaks.Select(p => p.Value).ToList());
 
             return difficulty;
         }
@@ -233,7 +241,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (sr < 0)
                 return sr;
 
-            return 10.43 * Math.Log(sr / 8 + 1);
+            return 10.8 * Math.Log(sr / 8 + 1);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
     /// <summary>
     /// Calculates the colour coefficient of taiko difficulty.
     /// </summary>
-    public class Colour : StrainDecaySkill
+    public class Colour : VariableLengthStrainDecaySkill
     {
         protected override double SkillMultiplier => 0.12;
 

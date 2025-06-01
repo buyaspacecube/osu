@@ -14,7 +14,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
     /// <summary>
     /// Calculates the stamina coefficient of taiko difficulty.
     /// </summary>
-    public class Stamina : StrainSkill
+    public class Stamina : VariableLengthStrainSkill
     {
         private double skillMultiplier => 1.1;
         private double strainDecayBase => 0.4;

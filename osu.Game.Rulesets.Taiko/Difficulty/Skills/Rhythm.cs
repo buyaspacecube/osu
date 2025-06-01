@@ -12,7 +12,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
     /// <summary>
     /// Calculates the rhythm coefficient of taiko difficulty.
     /// </summary>
-    public class Rhythm : StrainDecaySkill
+    public class Rhythm : VariableLengthStrainDecaySkill
     {
         protected override double SkillMultiplier => 1.0;
         protected override double StrainDecayBase => 0.4;
