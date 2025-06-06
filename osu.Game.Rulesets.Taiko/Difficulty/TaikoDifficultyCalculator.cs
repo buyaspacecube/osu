@@ -121,7 +121,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             patternMultiplier = Math.Pow(staminaSkill * colourSkill, 0.10);
 
             strainLengthBonus = 1
-                                + Math.Min(Math.Max((staminaDifficultStrains - 1150) / 4250, 0), 0.15)
+                                + 0.15 * DifficultyCalculationUtils.ReverseLerp(staminaDifficultStrains, 1200, 1850)
                                 + Math.Min(Math.Max((staminaSkill - 7.0) / 1.0, 0), 0.05);
 
             double combinedRating = combinedDifficultyValue(rhythm, reading, colour, stamina, isRelax, isConvert, out double consistencyFactor);
