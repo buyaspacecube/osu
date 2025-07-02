@@ -15,6 +15,7 @@ using osu.Game.Rulesets.Taiko.Difficulty.Preprocessing;
 using osu.Game.Rulesets.Taiko.Difficulty.Preprocessing.Colour;
 using osu.Game.Rulesets.Taiko.Difficulty.Preprocessing.Rhythm;
 using osu.Game.Rulesets.Taiko.Difficulty.Skills;
+using osu.Game.Rulesets.Taiko.Difficulty.Utils;
 using osu.Game.Rulesets.Taiko.Mods;
 using osu.Game.Rulesets.Taiko.Scoring;
 
@@ -90,7 +91,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             }
 
             TaikoColourDifficultyPreprocessor.ProcessAndAssign(difficultyHitObjects);
-            TaikoRhythmDifficultyPreprocessor.ProcessAndAssign(noteObjects);
+
+            // Rhythm groups are preprocessed using deltatimes normalised to the median of their range.
+            Dictionary<TaikoDifficultyHitObject, double> objectsAndNormalisedDeltas = DeltaTimeNormaliser.Normalise(noteObjects, 2);
+            TaikoRhythmDifficultyPreprocessor.ProcessAndAssign(objectsAndNormalisedDeltas);
 
             return difficultyHitObjects;
         }

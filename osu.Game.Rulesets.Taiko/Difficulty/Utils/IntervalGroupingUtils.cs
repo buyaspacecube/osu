@@ -8,18 +8,18 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Utils
 {
     public static class IntervalGroupingUtils
     {
-        public static List<List<T>> GroupByInterval<T>(IReadOnlyList<T> objects) where T : IHasInterval
+        public static List<List<T>> GroupByInterval<T>(IReadOnlyList<T> objects, List<double> intervals) where T : IHasInterval
         {
             var groups = new List<List<T>>();
 
             int i = 0;
             while (i < objects.Count)
-                groups.Add(createNextGroup(objects, ref i));
+                groups.Add(createNextGroup(objects, intervals, ref i));
 
             return groups;
         }
 
-        private static List<T> createNextGroup<T>(IReadOnlyList<T> objects, ref int i) where T : IHasInterval
+        private static List<T> createNextGroup<T>(IReadOnlyList<T> objects, List<double> intervals, ref int i) where T : IHasInterval
         {
             const double margin_of_error = 5.0;
 
@@ -30,11 +30,11 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Utils
 
             for (; i < objects.Count - 1; i++)
             {
-                if (!Precision.AlmostEquals(objects[i].Interval, objects[i + 1].Interval, margin_of_error))
+                if (!Precision.AlmostEquals(intervals[i], intervals[i + 1], margin_of_error))
                 {
                     // When an interval change occurs, include the object with the differing interval in the case it increased
                     // See https://github.com/ppy/osu/pull/31636#discussion_r1942368372 for rationale.
-                    if (objects[i + 1].Interval > objects[i].Interval + margin_of_error)
+                    if (intervals[i + 1] > intervals[i] + margin_of_error)
                     {
                         groupedObjects.Add(objects[i]);
                         i++;
@@ -49,7 +49,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Utils
 
             // Check if the last two objects in the object form a "flat" rhythm pattern within the specified margin of error.
             // If true, add the current object to the group and increment the index to process the next object.
-            if (objects.Count > 2 && i < objects.Count && Precision.AlmostEquals(objects[^1].Interval, objects[^2].Interval, margin_of_error))
+            if (objects.Count > 2 && i < objects.Count && Precision.AlmostEquals(intervals[^1], intervals[^2], margin_of_error))
             {
                 groupedObjects.Add(objects[i]);
                 i++;

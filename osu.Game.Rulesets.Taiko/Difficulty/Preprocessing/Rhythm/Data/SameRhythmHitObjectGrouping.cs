@@ -52,40 +52,22 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Preprocessing.Rhythm.Data
             Previous = previous;
             HitObjects = hitObjects;
 
-            // Cluster and normalise each hitobjects delta-time.
-            var normaliseHitObjects = DeltaTimeNormaliser.Normalise(hitObjects, 5.0);
+            // Calculate the average interval between hitobjects, or null if there are fewer than two
+            var duration = 0d;
+            for (int i = 1; i < HitObjects.Count; i++)
+            {
+                duration += HitObjects[i].DeltaTime;
+            }
 
-            var normalisedHitObjectDeltaTime = hitObjects
-                                               .Skip(1)
-                                               .Select(hitObject => normaliseHitObjects[hitObject])
-                                               .ToList();
-
-            double modalDelta = normalisedHitObjectDeltaTime.Count > 0
-                ? normalisedHitObjectDeltaTime
-                  .Select(deltaTime => Math.Round(deltaTime))
-                  .GroupBy(deltaTime => deltaTime)
-                  .OrderByDescending(group => group.Count())
-                  .First().Key
-                : 0;
-
-            // Calculate the average interval between hitobjects.
-            HitObjectInterval = normalisedHitObjectDeltaTime.Count > 0
-                ? previous?.HitObjectInterval is double previousDelta && Math.Abs(modalDelta - previousDelta) <= snap_tolerance
-                    ? previousDelta
-                    : modalDelta
-                : null;
+            HitObjectInterval = HitObjects.Count < 2 ? null : duration / (HitObjects.Count - 1);
 
             // Calculate the ratio between this group's interval and the previous group's interval
-            HitObjectIntervalRatio = previous?.HitObjectInterval is double previousInterval && HitObjectInterval is double currentInterval
-                ? currentInterval / previousInterval
-                : 1.0;
+            HitObjectIntervalRatio = Previous?.HitObjectInterval != null && HitObjectInterval != null
+                ? HitObjectInterval.Value / Previous.HitObjectInterval.Value
+                : 1;
 
             // Calculate the interval from the previous group's start time
-            Interval = previous == null
-                ? double.PositiveInfinity
-                : Math.Abs(StartTime - previous.StartTime) <= snap_tolerance
-                    ? 0
-                    : StartTime - previous.StartTime;
-        }
+            Interval = Previous != null ? StartTime - Previous.StartTime : double.PositiveInfinity;
+		 }
     }
 }

@@ -10,9 +10,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Preprocessing.Rhythm
 {
     public static class TaikoRhythmDifficultyPreprocessor
     {
-        public static void ProcessAndAssign(List<TaikoDifficultyHitObject> hitObjects)
+        public static void ProcessAndAssign(Dictionary<TaikoDifficultyHitObject, double> hitObjectsAndNormalisedDeltas)
         {
-            var rhythmGroups = createSameRhythmGroupedHitObjects(hitObjects);
+            var rhythmGroups = createSameRhythmGroupedHitObjects(hitObjectsAndNormalisedDeltas);
 
             foreach (var rhythmGroup in rhythmGroups)
             {
@@ -29,11 +29,14 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Preprocessing.Rhythm
             }
         }
 
-        private static List<SameRhythmHitObjectGrouping> createSameRhythmGroupedHitObjects(List<TaikoDifficultyHitObject> hitObjects)
+        private static List<SameRhythmHitObjectGrouping> createSameRhythmGroupedHitObjects(Dictionary<TaikoDifficultyHitObject, double> hitObjectsAndNormalisedDeltas)
         {
             var rhythmGroups = new List<SameRhythmHitObjectGrouping>();
 
-            foreach (var grouped in IntervalGroupingUtils.GroupByInterval(hitObjects))
+            var objects = hitObjectsAndNormalisedDeltas.Keys.ToList();
+            var normalisedDeltas = hitObjectsAndNormalisedDeltas.Values.ToList();
+
+            foreach (var grouped in IntervalGroupingUtils.GroupByInterval(objects, normalisedDeltas))
                 rhythmGroups.Add(new SameRhythmHitObjectGrouping(rhythmGroups.LastOrDefault(), grouped));
 
             return rhythmGroups;
@@ -43,7 +46,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Preprocessing.Rhythm
         {
             var patternGroups = new List<SamePatternsGroupedHitObjects>();
 
-            foreach (var grouped in IntervalGroupingUtils.GroupByInterval(rhythmGroups))
+            var rhythmGroupIntervals = rhythmGroups.Select(r => r.Interval).ToList();
+
+            foreach (var grouped in IntervalGroupingUtils.GroupByInterval(rhythmGroups, rhythmGroupIntervals))
                 patternGroups.Add(new SamePatternsGroupedHitObjects(patternGroups.LastOrDefault(), grouped));
 
             return patternGroups;
