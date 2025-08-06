@@ -157,9 +157,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         /// </summary>
         private double computeDeviationUpperBound(double accuracy)
         {
-            if (countGreat == 0 || greatHitWindow <= 0)
-                return null;
-
             const double z = 2.32634787404; // 99% critical value for the normal distribution (one-tailed).
 
             double n = totalHits;
