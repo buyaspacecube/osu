@@ -90,9 +90,6 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
 
             difficultyValue *= Math.Pow(0.986, effectiveMissCount);
 
-            if (score.Mods.Any(m => m is ModEasy))
-                difficultyValue *= 0.90;
-
             if (score.Mods.Any(m => m is ModHidden))
                 difficultyValue *= isConvert ? 1.025 : 1.1;
 
