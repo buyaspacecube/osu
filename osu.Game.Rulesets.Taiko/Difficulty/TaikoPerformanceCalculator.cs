@@ -85,8 +85,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             if (estimatedUnstableRate == null)
                 return 0;
 
-            // The estimated unstable rate for 100% accuracy, at which all rhythm difficulty has been played successfully.
-            double rhythmExpectedUnstableRate = computeDeviationUpperBound(1.0) * 10;
+            // An estimation of the unstable rate expected for a SS at the map's star rating, at which all rhythm difficulty has been played successfully.
+            double rhythmExpectedUnstableRate = 75 + 150 / Math.Pow(10, attributes.StarRating / 9);
 
             // The unstable rate at which it can be assumed all rhythm difficulty has been ignored.
             double rhythmMaximumUnstableRate = 2 * rhythmExpectedUnstableRate;
