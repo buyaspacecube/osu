@@ -36,6 +36,9 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 
             difficulty += Math.Max(sameRhythm, samePattern) * intervalPenalty;
 
+            // Penalty write this in a sec
+            difficulty *= DifficultyCalculationUtils.Logistic(rhythmData.Ratio, 1.75, -20);
+
             return difficulty;
         }
 
