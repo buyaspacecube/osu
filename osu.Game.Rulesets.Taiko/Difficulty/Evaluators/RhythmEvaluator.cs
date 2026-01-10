@@ -24,17 +24,19 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             double sameRhythm = 0;
             double samePattern = 0;
             double intervalPenalty = 0;
+            double slowPenalty = 0;
 
             if (rhythmData.SameRhythmGroupedHitObjects?.FirstHitObject == hitObject) // Difficulty for SameRhythmGroupedHitObjects
             {
                 sameRhythm += 10.0 * evaluateDifficultyOf(rhythmData.SameRhythmGroupedHitObjects, hitWindow);
                 intervalPenalty = repeatedIntervalPenalty(rhythmData.SameRhythmGroupedHitObjects, hitWindow);
+                slowPenalty = slowAfterLongGapPenalty(rhythmData.Ratio, rhythmData.SameRhythmGroupedHitObjects.HitObjectIntervalRatio);
             }
 
             if (rhythmData.SamePatternsGroupedHitObjects?.FirstHitObject == hitObject) // Difficulty for SamePatternsGroupedHitObjects
                 samePattern += 1.15 * ratioDifficulty(rhythmData.SamePatternsGroupedHitObjects.IntervalRatio);
 
-            difficulty += Math.Max(sameRhythm, samePattern) * intervalPenalty;
+            difficulty += Math.Max(sameRhythm, samePattern) * intervalPenalty * slowPenalty;
 
             return difficulty;
         }
@@ -152,5 +154,16 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         /// </summary>
         private static double termPenalty(double ratio, int denominator, double power, double multiplier) =>
             -multiplier * Math.Pow(Math.Cos(denominator * Math.PI * ratio), power);
+
+        /// <summary>
+        /// This penalty targets the particular case of a long gap before the note into a slower rhythm after it awarding more difficulty than players perceive it should.
+        /// </summary>
+        private static double slowAfterLongGapPenalty(double ratio, double intervalRatio)
+        {
+            double longGapPrecedingPenalty = DifficultyCalculationUtils.Logistic(ratio, 1.75, -20);
+            double slowRhythmFollowingPenalty = DifficultyCalculationUtils.Logistic(intervalRatio, 5 / 6.0, -30) * 0.8;
+
+            return slowRhythmFollowingPenalty * (1 - longGapPrecedingPenalty) + longGapPrecedingPenalty;
+        }
     }
 }
