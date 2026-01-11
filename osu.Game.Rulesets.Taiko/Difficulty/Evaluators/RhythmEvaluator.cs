@@ -24,19 +24,19 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             double sameRhythm = 0;
             double samePattern = 0;
             double intervalPenalty = 0;
-            double slowPenalty = 0;
+            double previousPenalty = 0;
 
             if (rhythmData.SameRhythmGroupedHitObjects?.FirstHitObject == hitObject) // Difficulty for SameRhythmGroupedHitObjects
             {
                 sameRhythm += 10.0 * evaluateDifficultyOf(rhythmData.SameRhythmGroupedHitObjects, hitWindow);
                 intervalPenalty = repeatedIntervalPenalty(rhythmData.SameRhythmGroupedHitObjects, hitWindow);
-                slowPenalty = slowAfterLongGapPenalty(rhythmData.Ratio, rhythmData.SameRhythmGroupedHitObjects.HitObjectIntervalRatio);
+                previousPenalty = previousRhythmPenalty(rhythmData.SameRhythmGroupedHitObjects.Previous);
             }
 
             if (rhythmData.SamePatternsGroupedHitObjects?.FirstHitObject == hitObject) // Difficulty for SamePatternsGroupedHitObjects
                 samePattern += 1.15 * ratioDifficulty(rhythmData.SamePatternsGroupedHitObjects.IntervalRatio);
 
-            difficulty += Math.Max(sameRhythm, samePattern) * intervalPenalty * slowPenalty;
+            difficulty += Math.Max(sameRhythm, samePattern) * intervalPenalty * previousPenalty;
 
             return difficulty;
         }
@@ -156,14 +156,21 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             -multiplier * Math.Pow(Math.Cos(denominator * Math.PI * ratio), power);
 
         /// <summary>
-        /// This penalty targets the particular case of a long gap before the note into a slower rhythm after it awarding more difficulty than players perceive it should.
+        /// Rhythm changes can award unexpected difficulty if the rhythm changes leading up to them are frequent but easy.
+        /// Due to limitations of the current rhythm calculation, these cases are targeted and penalised.
         /// </summary>
-        private static double slowAfterLongGapPenalty(double ratio, double intervalRatio)
+        private static double previousRhythmPenalty(SameRhythmHitObjectGrouping? previous)
         {
-            double longGapPrecedingPenalty = DifficultyCalculationUtils.Logistic(ratio, 1.75, -20);
-            double slowRhythmFollowingPenalty = DifficultyCalculationUtils.Logistic(intervalRatio, 5 / 6.0, -30) * 0.8;
+            double gapDelta = previous?.FirstHitObject.DeltaTime ?? 1;
+            double interval = previous?.HitObjectInterval ?? 1;
+            double gapRatio = gapDelta / interval;
 
-            return slowRhythmFollowingPenalty * (1 - longGapPrecedingPenalty) + longGapPrecedingPenalty;
+            double patternLength = previous?.HitObjects.Count ?? 1;
+
+            double gapPenalty = 1.0 - DifficultyCalculationUtils.Logistic(gapRatio, 1.75, 20);
+            double lengthPenalty = 0.25 + 0.75 * DifficultyCalculationUtils.Logistic(patternLength, 4, 2.5);
+
+            return gapPenalty + (1 - gapPenalty) * lengthPenalty;
         }
     }
 }
