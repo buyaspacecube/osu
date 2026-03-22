@@ -17,6 +17,7 @@ using osu.Game.Extensions;
 using osu.Game.IO.Archives;
 using osu.Game.Models;
 using osu.Game.Overlays.Notifications;
+using osu.Game.Utils;
 using Realms;
 
 namespace osu.Game.Database
@@ -217,9 +218,19 @@ namespace osu.Game.Database
                 // to prevent this bricking external edit, strip invalid characters on external edit.
                 // the presumption here is that whatever produced the mangled archive is primarily at fault here, and we're just trying to trudge on locally as best as possible.
                 // if there are further troubles related to similar issues, reevaluate moving this sort of check to the import side instead (sanitising filenames on import from archive).
-                string destinationPath = Path.Join(mountedPath, realmFile.Filename.GetValidFilename());
+                string destinationPath = mountedPath;
+                foreach (string piece in realmFile.Filename.Split('/').Select(f => f.GetValidFilename()))
+                    destinationPath = Path.Combine(destinationPath, piece);
 
-                Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+                string destinationDirectory = Path.GetDirectoryName(destinationPath)!;
+
+                if (!FilesystemSanityCheckHelpers.IsSubDirectory(parent: mountedPath, child: destinationDirectory))
+                {
+                    Logger.Log($@"Skipping attempt to mount {realmFile.Filename} due to detected escape out of mounted path.", LoggingTarget.Database);
+                    continue;
+                }
+
+                Directory.CreateDirectory(destinationDirectory);
 
                 // Consider using hard links here to make this instant.
                 using (var inStream = Files.Storage.GetStream(sourcePath))
@@ -359,6 +370,9 @@ namespace osu.Game.Database
                     // We intentionally delay adding to realm to avoid blocking on a write during disk operations.
                     foreach (var filenames in getShortenedFilenames(archive))
                     {
+                        if (FilesystemSanityCheckHelpers.IncursPathTraversalRisk(filenames.shortened))
+                            throw new InvalidOperationException($@"Filename ""{filenames.original}"" is not allowed.");
+
                         using (Stream s = archive.GetStream(filenames.original))
                             files.Add(new RealmNamedFileUsage(Files.Add(s, realm, false, parameters.PreferHardLinks), filenames.shortened));
                     }
@@ -472,8 +486,10 @@ namespace osu.Game.Database
 
             foreach (RealmNamedFileUsage file in item.Files.Where(f => HashableFileTypes.Any(ext => f.Filename.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).OrderBy(f => f.Filename))
             {
-                using (Stream s = Files.Store.GetStream(file.File.GetStoragePath()))
-                    s.CopyTo(hashable);
+                using (Stream? s = Files.Store.GetStream(file.File.GetStoragePath()))
+                {
+                    s?.CopyTo(hashable);
+                }
             }
 
             if (hashable.Length > 0)
