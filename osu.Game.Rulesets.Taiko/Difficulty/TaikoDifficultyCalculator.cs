@@ -25,7 +25,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
         private const double rhythm_skill_multiplier = 0.750 * difficulty_multiplier;
         private const double reading_skill_multiplier = 0.200 * difficulty_multiplier;
         private const double colour_skill_multiplier = 0.375 * difficulty_multiplier;
-        private const double stamina_skill_multiplier = 0.445 * difficulty_multiplier;
+        private const double stamina_skill_multiplier = 0.460 * difficulty_multiplier;
 
         private double strainLengthBonus;
         private double patternMultiplier;
@@ -124,10 +124,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             // As we don't have pattern integration in osu!taiko, we apply the other two skills relative to rhythm.
             patternMultiplier = Math.Pow(staminaSkill * colourSkill, 0.10);
 
-            strainLengthBonus = 1 + 0.15 * DifficultyCalculationUtils.ReverseLerp(staminaDifficultStrains, 1000, 1555);
+            strainLengthBonus = 1 + 0.1 * DifficultyCalculationUtils.ReverseLerp(staminaDifficultStrains, 1000, 1555);
 
             // Apply a penalty to small amounts of reading that can be memorised.
-            readingLengthPenalty = DifficultyCalculationUtils.ReverseLerp(readingDifficultStrains, 0, 150);
+            readingLengthPenalty = 0.25 + 0.75 * DifficultyCalculationUtils.ReverseLerp(readingDifficultStrains, 0, 150);
 
             double combinedRating = combinedDifficultyValue(rhythm, reading, colour, stamina, out double consistencyFactor);
             double starRating = rescale(combinedRating * 1.4);

@@ -49,7 +49,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 
             // With hidden, all notes award a base difficulty
             if (isHidden)
-                difficulty = 0.25 + 0.75 * difficulty;
+                difficulty = 0.3 + 0.7 * difficulty;
 
             return difficulty;
         }
@@ -64,8 +64,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             double densityBonus = calculateHighVelocityDensityBonus(noteObject);
 
             var highVelocity = new VelocityRange(
-                420 - 140 * densityBonus,
-                1000 - 320 * densityBonus
+                500 - 150 * densityBonus,
+                1000 - 250 * densityBonus
             );
 
             highVelocityDifficulty = DifficultyCalculationUtils.Logistic(
