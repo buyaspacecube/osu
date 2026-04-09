@@ -63,8 +63,8 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             double densityBonus = calculateHighVelocityDensityBonus(noteObject);
 
             var highVelocity = new VelocityRange(
-                500 - 150 * densityBonus,
-                1000 - 250 * densityBonus
+                500 - 200 * densityBonus,
+                1000 - 275 * densityBonus
             );
 
             highVelocityDifficulty = DifficultyCalculationUtils.Logistic(
