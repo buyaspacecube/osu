@@ -48,7 +48,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 
             // With hidden, all notes award a base difficulty
             if (isHidden)
-                difficulty = 0.3 + 0.7 * difficulty;
+                difficulty = 0.4 + 0.6 * Math.Pow(difficulty, 1.25);
 
             return difficulty;
         }
