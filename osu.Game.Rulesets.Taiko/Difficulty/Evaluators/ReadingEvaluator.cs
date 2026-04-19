@@ -130,10 +130,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
                     multiplier *= 1.2;
             }
 
-            // With flashlight, the visible playfield is limited from the expected 1560px wide to around 468px
-            // Considerations for combo and smaller flashlights are currently out of scope
+            // With flashlight enabled, the visible playfield becomes more obscured as combo increases
+            // As this is unrealistic to consider, an arbitrary value is used based on feedback
             if (isFlashlight)
-                multiplier *= 1560.0 / 468.0;
+                multiplier *= 4.5;
 
             return multiplier;
         }
