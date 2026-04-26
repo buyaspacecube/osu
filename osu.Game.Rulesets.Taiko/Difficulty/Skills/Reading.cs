@@ -8,6 +8,8 @@ using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Taiko.Difficulty.Evaluators;
 using osu.Game.Rulesets.Taiko.Difficulty.Preprocessing;
 using osu.Game.Rulesets.Taiko.Objects;
+using System;
+using System.Linq;
 
 namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
 {
@@ -18,6 +20,10 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
     {
         protected override double SkillMultiplier => 1.0;
         protected override double StrainDecayBase => 0.4;
+
+        private double currentPatternLength;
+        private double currentPatternDifficultySum;
+        public double weightedTotalDifficultySum;
 
         private double currentStrain;
         private Mod[] mods;
@@ -37,12 +43,27 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Skills
             }
 
             var taikoObject = (TaikoDifficultyHitObject)current;
-            int index = taikoObject.ColourData.MonoStreak?.HitObjects.IndexOf(taikoObject) ?? 0;
+            var colourData = taikoObject.ColourData;
+
+            int index = colourData.MonoStreak?.HitObjects.IndexOf(taikoObject) ?? 0;
 
             currentStrain *= DifficultyCalculationUtils.Logistic(index, 4, -1 / 25.0, 0.5) + 0.5;
 
+            double difficulty = ReadingEvaluator.EvaluateDifficultyOf(taikoObject, mods);
+
             currentStrain *= StrainDecayBase;
-            currentStrain += ReadingEvaluator.EvaluateDifficultyOf(taikoObject, mods) * SkillMultiplier;
+            currentStrain += difficulty * SkillMultiplier;
+
+            if (colourData.RepeatingHitPattern.FirstHitObject == taikoObject)
+            {
+                weightedTotalDifficultySum += currentPatternDifficultySum / Math.Max(currentPatternLength, 1);
+
+                currentPatternLength = 0;
+                currentPatternDifficultySum = 0;
+            }
+
+            currentPatternLength++;
+            currentPatternDifficultySum += difficulty;
 
             return currentStrain;
         }
