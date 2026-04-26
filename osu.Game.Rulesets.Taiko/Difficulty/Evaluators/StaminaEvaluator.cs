@@ -44,7 +44,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
             // Interval is capped at a very small value to prevent infinite values.
             double interval = Math.Max(current.StartTime - previous.StartTime, 1);
 
-            return (10 / interval) + DifficultyCalculationUtils.BellCurve(interval, 70, 15, 0.1);
+            return (10 / interval) + 0.2 * DifficultyCalculationUtils.ReverseLerp(interval, 100, 0);
         }
 
         /// <summary>
