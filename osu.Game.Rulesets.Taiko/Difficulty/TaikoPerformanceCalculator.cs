@@ -85,7 +85,11 @@ namespace osu.Game.Rulesets.Taiko.Difficulty
             double penalisedStarRating = attributes.StarRating * calculateImproperlyPlayedRhythmPenalty(attributes.RhythmDifficulty, attributes.StarRating);
 
             if (score.Mods.Any(m => m is ModHidden) && !isClassic)
-                penalisedStarRating *= calculateLazerReadingPenalty(attributes.ReadingDifficulty, attributes.StarRating);
+            {
+                // HDFL is exempt from reading penalties.
+                if (!score.Mods.Any(m => m is ModFlashlight))
+                    penalisedStarRating *= calculateLazerReadingPenalty(attributes.ReadingDifficulty, attributes.StarRating);
+            }
 
             double baseDifficulty = 5 * Math.Max(1.0, penalisedStarRating / 0.110) - 4.0;
             double difficultyValue = Math.Min(Math.Pow(baseDifficulty, 3) / 69052.51, Math.Pow(baseDifficulty, 2.25) / 1250.0);
