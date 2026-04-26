@@ -78,7 +78,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
 
             // With hidden, notes that stay invisible for longer before being hit are harder to read
             if (isHidden) {
-                var lowVelocity = new VelocityRange(280, 125);
+                var lowVelocity = new VelocityRange(280, 140);
 
                 timeInvisibleDifficulty = DifficultyCalculationUtils.Logistic(
                     noteObject.EffectiveBPM * calculateTimeInvisibleModMultiplier(mods),
@@ -154,10 +154,7 @@ namespace osu.Game.Rulesets.Taiko.Difficulty.Evaluators
         private static double calculateDensityDifficulty(TaikoDifficultyHitObject noteObject)
         {
             // Notes at very high density are harder to read
-            return Math.Pow(
-                DifficultyCalculationUtils.Logistic(calculateObjectDensity(noteObject), 3.5, 1.5),
-                3.0
-            );
+            return DifficultyCalculationUtils.Logistic(calculateObjectDensity(noteObject), 3.5, 1.5);
         }
 
         private static double calculateObjectDensity(TaikoDifficultyHitObject noteObject)
